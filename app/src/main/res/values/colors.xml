@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="black">#FF000000</color>
+    <color name="forest_green">#2f5d42</color>
+    <color name="leaf_green">#6bbf59</color>
+    <color name="moss_green">#8faf79</color>
+    <color name="sunlight_yellow">#f4d35e</color>
+    <color name="clay_orange">#d68a3a</color>
+    <color name="stone_gray">#e1e4e3</color>
+    <color name="pebble_gray">#a9aead</color>
+    <color name="charcoal">#2e2e2e</color>
+    <color name="chestnut_brown">#8b5a2b</color>
+    <color name="coffee_brown">#6f4e37</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="light_earth_brown">#E2B47A</color>
+
+
 </resources>
