@@ -86,7 +86,7 @@
         android:id="@+id/textView"
         android:layout_width="116dp"
         android:layout_height="82dp"
-        android:text="@string/"
+        android:text="ola mundo"
         tools:layout_editor_absoluteX="4dp"
         tools:layout_editor_absoluteY="214dp" />
 
