@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">Bloomain</string>
+    <string name="login">Entrar</string>
+    <string name="register">Criar conta</string>
+    <string name="registerhint">Ainda não tem conta?</string>
+    <string name="welcome">Bem-vindo!</string>
+    <string name="profileEmail">Email do Utilizador:</string>
+    <string name="editprofile">Editar Perfil</string>
+    <string name="profileUsername">Nome Do Utilizador</string>
 </resources>
