@@ -27,7 +27,6 @@ class RegisterActivity : AppCompatActivity() {
     private lateinit var progressBar: ProgressBar
     private lateinit var btnRegister: Button
 
-    // Seletor de Imagem
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
             findViewById<ImageView>(R.id.logo).setImageURI(it)
@@ -39,6 +38,9 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Gere o processo de criação de novas contas de utilizador.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -70,19 +72,16 @@ class RegisterActivity : AppCompatActivity() {
             val passwordConfirm = etPasswordConfirm.text.toString()
             val passwordPattern = "^(?=.*[0-9])(?=.*[A-Z])(?=.*[@#$%^&+=!])(?=\\S+$).{8,}$".toRegex()
 
-            // 1. Validações Locais (Frontend)
             if (username.length < 3) {
                 etUsername.error = "O nome deve ter pelo menos 3 caracteres"
                 return@setOnClickListener
             }
 
-            // Uso do Patterns.EMAIL_ADDRESS que encontraste na documentação
             if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                 etEmail.error = "Insira um e-mail válido"
                 return@setOnClickListener
             }
 
-            // Validação de força da password (ex: mínimo 8 caracteres)
             if (!password.matches(passwordPattern)) {
                 etPassword.error = "A password deve ter 8 carateres, incluir uma maiúscula, um número e um símbolo (@#$%^&+=!)"
                 return@setOnClickListener
@@ -107,17 +106,16 @@ class RegisterActivity : AppCompatActivity() {
                 override fun onResponse(call: Call<RegisterResponse>, response: Response<RegisterResponse>) {
                     setLoading(false)
                     if (response.isSuccessful) {
-                        Toast.makeText(this@RegisterActivity, "✅ Conta criada com sucesso!", Toast.LENGTH_LONG).show()
+                        Toast.makeText(this@RegisterActivity, "Conta criada com sucesso!", Toast.LENGTH_LONG).show()
                         finish()
                     } else {
-                        // 2. Lógica para ler a mensagem de erro vinda do Servidor (ex: "Email já está em uso")
                         val errorBody = response.errorBody()?.string()
                         val message = try {
                             JSONObject(errorBody).getString("message")
                         } catch (e: Exception) {
                             "Erro ao registar. Verifique os dados."
                         }
-                        Toast.makeText(this@RegisterActivity, "❌ $message", Toast.LENGTH_LONG).show()
+                        Toast.makeText(this@RegisterActivity, "$message", Toast.LENGTH_LONG).show()
                     }
                 }
 
@@ -128,7 +126,9 @@ class RegisterActivity : AppCompatActivity() {
             })
         }
     }
-
+    /**
+     * Controla a visibilidade dos indicadores de progresso e a interatividade dos botões.
+     */
     private fun setLoading(isLoading: Boolean) {
         progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         btnRegister.isEnabled = !isLoading

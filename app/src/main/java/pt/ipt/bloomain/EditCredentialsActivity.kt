@@ -13,6 +13,17 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class EditCredentialsActivity : AppCompatActivity() {
 
+    /**
+     *Inicializa a Activity de edição de credenciais e perfil.
+     * * Este método realiza as seguintes operações:
+     *  1. Recupera o ID do utilizador e o nome atual vindos da Intent para preencher os campos.
+     *  2. Posiciona o cursor de edição no final do texto para facilitar a interação.
+     *  3. Configura o botão de salvaguarda com validações em tempo real:
+     *  - Impede o envio se todos os campos estiverem vazios.
+     *  - Valida a coincidência entre a nova palavra-passe e a confirmação.
+     *  - Verifica se a nova palavra-passe cumpre o requisito mínimo de 6 caracteres.
+     *  4. Dispara a atualização no servidor via [updateUserInServer] apenas se os dados forem válidos.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_credentials)
@@ -21,12 +32,11 @@ class EditCredentialsActivity : AppCompatActivity() {
 
         val editNameField = findViewById<EditText>(R.id.editNewUsername)
 
-        // 1. Pega o nome que veio na "viagem" da Intent
+
         val currentName = intent.getStringExtra("CURRENT_USERNAME")
 
         if (!currentName.isNullOrEmpty()) {
             editNameField.setText(currentName)
-            // Coloca o cursor no fim do texto
             editNameField.setSelection(editNameField.text.length)
         }
 
@@ -36,17 +46,17 @@ class EditCredentialsActivity : AppCompatActivity() {
             val confirmPassword = findViewById<EditText>(R.id.editConfirmPassword).text.toString().trim()
             val newBio = findViewById<EditText>(R.id.editBio).text.toString().trim()
 
-            // 1. Verifica se não está tudo vazio
+
             if (newUsername.isEmpty() && newPassword.isEmpty() && newBio.isEmpty()) {
                 Toast.makeText(this, "Preencha pelo menos um campo", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener // Para aqui a execução
+                return@setOnClickListener
             }
 
-            // 2. Se o utilizador escreveu uma password, temos de validar
+
             if (newPassword.isNotEmpty()) {
                 if (newPassword != confirmPassword) {
                     Toast.makeText(this, "As palavras-passe não coincidem!", Toast.LENGTH_SHORT).show()
-                    return@setOnClickListener // Para aqui a execução e não envia nada
+                    return@setOnClickListener
                 }
 
                 if (newPassword.length < 6) {
@@ -55,12 +65,21 @@ class EditCredentialsActivity : AppCompatActivity() {
                 }
             }
 
-            // 3. SÓ AGORA é que enviamos para o servidor, porque passou todos os testes
-            updateUser(userId, newUsername, newPassword, newBio)
+
+            updateUserInServer(userId, newUsername, newPassword, newBio)
         }
     }
-
-    private fun updateUser(id: String, username: String, password: String, bio: String) {
+    /**
+     * Envia as atualizações de perfil do utilizador para o servidor de forma assíncrona.
+     * * Este método realiza as seguintes ações:
+     * 1. Inicializa a instância do Retrofit configurada para o servidor local.
+     * 2. Constrói um mapa dinâmico contendo apenas os campos preenchidos
+     * (username, password e/ou bio), evitando o envio de dados vazios.
+     * 3. Executa uma chamada à API através do método 'updateUser'.
+     * 4. Em caso de sucesso, exibe uma confirmação e encerra a Activity com [finish].
+     * 5. Em caso de falha ou erro de resposta, notifica o utilizador via Toast.
+     */
+    private fun updateUserInServer(id: String, username: String, password: String, bio: String) {
         val retrofit = Retrofit.Builder()
             .baseUrl("http://192.168.1.211:3000/")
             .addConverterFactory(GsonConverterFactory.create())
@@ -68,34 +87,24 @@ class EditCredentialsActivity : AppCompatActivity() {
 
         val apiService = retrofit.create(ApiService::class.java)
 
-        // Criamos o mapa dinâmico para enviar apenas o que foi alterado
+
         val updateData = mutableMapOf<String, String>()
-
-        // IMPORTANTE: Adicionar o ID de quem está logado para passar na segurança do servidor
-        updateData["loggedInUserId"] = id
-
         if (username.isNotEmpty()) updateData["username"] = username
         if (password.isNotEmpty()) updateData["password"] = password
         if (bio.isNotEmpty()) updateData["bio"] = bio
 
-        // Trocamos <User> por <ProfileData> para resolver o erro vermelho
-        apiService.updateUser(id, updateData).enqueue(object : Callback<ProfileData> {
-            override fun onResponse(call: Call<ProfileData>, response: Response<ProfileData>) {
+        apiService.updateUser(id, updateData).enqueue(object : Callback<User> {
+            override fun onResponse(call: Call<User>, response: Response<User>) {
                 if (response.isSuccessful) {
-                    Toast.makeText(this@EditCredentialsActivity, "✅ Alterado com sucesso!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@EditCredentialsActivity, "Alterado com sucesso!", Toast.LENGTH_SHORT).show()
                     finish()
                 } else {
-                    // Tenta ler a mensagem de erro do servidor (ex: "Username já em uso")
-                    val errorMsg = try {
-                        org.json.JSONObject(response.errorBody()?.string()).getString("message")
-                    } catch (e: Exception) { "Erro ao atualizar" }
-
-                    Toast.makeText(this@EditCredentialsActivity, "❌ $errorMsg", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@EditCredentialsActivity, "Erro ao atualizar", Toast.LENGTH_SHORT).show()
                 }
             }
 
-            override fun onFailure(call: Call<ProfileData>, t: Throwable) {
-                Toast.makeText(this@EditCredentialsActivity, "🌐 Falha na ligação ao servidor", Toast.LENGTH_SHORT).show()
+            override fun onFailure(call: Call<User>, t: Throwable) {
+                Toast.makeText(this@EditCredentialsActivity, "Falha na ligação", Toast.LENGTH_SHORT).show()
             }
         })
     }

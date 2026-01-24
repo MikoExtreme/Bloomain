@@ -25,6 +25,9 @@ class PostDetailActivity : AppCompatActivity() {
             .create(ApiService::class.java)
     }
 
+    /**
+     * Inicializa a Activity de detalhes de uma publicação específica.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_post_detail)
@@ -38,19 +41,22 @@ class PostDetailActivity : AppCompatActivity() {
         loadSinglePost(postId)
     }
 
+    /**
+     * Procura os detalhes de uma publicação específica no servidor e atualiza a interface.
+     */
     private fun loadSinglePost(postId: String) {
         apiService.getPostById(postId).enqueue(object : Callback<PostItemResponse> {
             override fun onResponse(call: Call<PostItemResponse>, response: Response<PostItemResponse>) {
                 if (response.isSuccessful) {
                     val post = response.body()
                     if (post != null) {
-                        // REUTILIZAMOS o PostsAdapter do Feed
+
                         recyclerView.adapter = PostsAdapter(
                             items = listOf(post),
                             currentUserId = currentUserId,
                             apiService = apiService,
                             onLike = { clickedPost -> toggleLike(clickedPost._id) },
-                            onDelete = { finish() } // Se apagar, fecha o ecrã e volta ao perfil
+                            onDelete = { finish() }
                         )
                     }
                 }
@@ -60,7 +66,9 @@ class PostDetailActivity : AppCompatActivity() {
             }
         })
     }
-
+/**
+ * Alterna o estado de 'Like' de uma publicação para o utilizador atual.
+ */
     private fun toggleLike(postId: String) {
         val body = mapOf("userId" to currentUserId)
         apiService.toggleLike(postId, body).enqueue(object : Callback<PostResponse> {

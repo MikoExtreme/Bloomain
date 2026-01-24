@@ -23,25 +23,31 @@ class CommentsActivity : AppCompatActivity() {
     private lateinit var postId: String
     private lateinit var userId: String
 
+    /**
+     * Inicializa a Activity de comentários.
+     * Este método é responsável por recuperar os dados da Intent anterior,
+     * configurar a interface visual (RecyclerView) e iniciar a carga
+     * de dados vinda do servidor Node.js.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_comments)
 
-        // 1. Recuperar IDs da Intent
+
         postId = intent.getStringExtra("POST_ID") ?: ""
         userId = intent.getStringExtra("USER_ID") ?: ""
 
-        // 2. Inicializar UI
+
         recyclerView = findViewById(R.id.rvComments)
         etComment = findViewById(R.id.etComment)
         btnSend = findViewById(R.id.btnSendComment)
 
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        // 3. Carregar comentários existentes
+
         loadComments()
 
-        // 4. Configurar envio de comentário
+
         btnSend.setOnClickListener {
             val text = etComment.text.toString()
             if (text.isNotEmpty()) {
@@ -50,6 +56,12 @@ class CommentsActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Faz uma requisição assíncrona ao servidor para obter a lista de comentários.
+     * * Este método utiliza o Retrofit para contactar o endpoint GET /posts/:postId/comments.
+     * Em caso de sucesso, atualiza o RecyclerView com a lista recebida.
+     * Em caso de erro de rede ou resposta inválida, exibe um Toast ao utilizador.
+     */
     private fun loadComments() {
         val retrofit = Retrofit.Builder()
             .baseUrl("http://192.168.1.211:3000/")
@@ -70,6 +82,15 @@ class CommentsActivity : AppCompatActivity() {
         })
     }
 
+    /**
+     * Envia um novo comentário para o servidor e atualiza a interface.
+     * * Este método encapsula a descrição, o ID do autor e o ID do post num objeto [CommentRequest].
+     * Faz uma chamada POST para o endpoint /comments. Em caso de sucesso:
+     * 1. Limpa o campo de texto.
+     * 2. Esconde o teclado.
+     * 3. Chama [loadComments] para sincronizar a lista com o novo conteúdo da base de dados.
+     * @param description O texto do comentário inserido pelo utilizador.
+     */
     private fun sendComment(description: String) {
         val apiService = Retrofit.Builder()
             .baseUrl("http://192.168.1.211:3000/")
@@ -95,7 +116,12 @@ class CommentsActivity : AppCompatActivity() {
     }
 
 
-    // Função utilitária para esconder o teclado
+    /**
+     * Fecha o teclado virtual de forma programática.
+     * * Este método identifica qual o componente que detém o foco atual na Activity
+     * e utiliza o InputMethodManager para ocultar o teclado. É ideal para ser
+     * chamado após o envio de um comentário ou ao navegar para outra tela.
+     */
     private fun hideKeyboard() {
         val view = this.currentFocus
         if (view != null) {

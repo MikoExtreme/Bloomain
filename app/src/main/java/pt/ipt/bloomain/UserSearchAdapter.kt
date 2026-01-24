@@ -28,11 +28,13 @@ class UserSearchAdapter(
         return SearchViewHolder(v)
     }
 
+    /**
+     * Associa os dados do perfil pesquisado aos componentes visuais da linha.
+     */
     override fun onBindViewHolder(holder: SearchViewHolder, position: Int) {
         val user = users[position]
         holder.tvUsername.text = user.username
 
-        // Decodificar imagem de perfil
         if (!user.profileImage.isNullOrEmpty()) {
             try {
                 val imageBytes = Base64.decode(user.profileImage, Base64.DEFAULT)
@@ -43,7 +45,6 @@ class UserSearchAdapter(
             }
         }
 
-        // Clique para abrir o perfil do utilizador pesquisado
         holder.itemView.setOnClickListener {
             val intent = Intent(holder.itemView.context, ProfileActivity::class.java).apply {
                 putExtra("USER_ID", user._id) // ID do utilizador encontrado

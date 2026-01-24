@@ -44,20 +44,24 @@ class PostsAdapter(
         val tvViewComments: TextView = view.findViewById(R.id.tv_view_comments)
     }
 
+    /**
+     * Cria a estrutura física de cada item da lista.
+     */
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
         val v = LayoutInflater.from(parent.context).inflate(R.layout.post, parent, false)
         return PostViewHolder(v)
     }
 
+    /**
+     * Alimenta a interface com os dados dinâmicos do post e configura as interações.
+     */
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
         val post = items[position]
 
-        // --- DADOS DE TEXTO ---
         holder.tvUsername.text = post.creator.username
         holder.tvCaption.text = "${post.creator.username} ${post.description}"
         holder.tvLikes.text = "${post.likes.size} gostos"
 
-        // --- NAVEGAÇÃO PARA PERFIL ---
         val abrirPerfil = View.OnClickListener {
             val intent = Intent(holder.itemView.context, ProfileActivity::class.java).apply {
                 putExtra("USER_ID", post.creator._id)
@@ -68,7 +72,6 @@ class PostsAdapter(
         holder.ivAvatar.setOnClickListener(abrirPerfil)
         holder.tvUsername.setOnClickListener(abrirPerfil)
 
-        // --- DATA E HORA (PORTUGUÊS) ---
         try {
             val localePT = java.util.Locale.forLanguageTag("pt-PT")
             val sdf = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", localePT)
@@ -89,7 +92,7 @@ class PostsAdapter(
             holder.tvTime.text = "há algum tempo"
         }
 
-        // --- IMAGENS (AVATAR E POST) ---
+
         if (post.creator.profileImage.isNotEmpty()) {
             try {
                 val imageBytes = Base64.decode(post.creator.profileImage, Base64.DEFAULT)
@@ -110,7 +113,6 @@ class PostsAdapter(
             }
         }
 
-        // --- LÓGICA DE LIKE ---
         val isLikedByMe = post.likes.contains(currentUserId)
         if (isLikedByMe) {
             holder.btnLike.setImageResource(android.R.drawable.btn_star_big_on)
@@ -121,7 +123,6 @@ class PostsAdapter(
         }
         holder.btnLike.setOnClickListener { onLike(post) }
 
-        // --- LÓGICA DE COMENTÁRIOS ---
         val abrirComentarios = View.OnClickListener {
             val intent = Intent(holder.itemView.context, CommentsActivity::class.java).apply {
                 putExtra("POST_ID", post._id)
@@ -132,7 +133,6 @@ class PostsAdapter(
         holder.btnComment.setOnClickListener(abrirComentarios)
         holder.tvViewComments.setOnClickListener(abrirComentarios)
 
-        // --- LÓGICA DE ELIMINAR POST ---
         if (post.creator._id == currentUserId) {
             holder.btnDeletePost.visibility = View.VISIBLE
             holder.btnDeletePost.setOnClickListener {
