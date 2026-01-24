@@ -36,7 +36,6 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var tvFollowing: TextView
     private lateinit var btnFollow: Button
 
-    // 1. Variável global que será usada pelo adaptador para evitar o crash
     private lateinit var currentUserId: String
 
     private val apiService by lazy {
@@ -47,12 +46,15 @@ class ProfileActivity : AppCompatActivity() {
             .create(ApiService::class.java)
     }
 
+    /**
+     * Gere a visualização e interação com o perfil de um utilizador.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.profile)
 
-        // Inicialização de UI
+
         recyclerView = findViewById(R.id.postsRecyclerView)
         recyclerView.layoutManager = GridLayoutManager(this, 3)
         tvFollowers = findViewById(R.id.followerCountText)
@@ -70,14 +72,12 @@ class ProfileActivity : AppCompatActivity() {
             insets
         }
 
-        // 2. CORREÇÃO DO CRASH: Inicializamos a variável global
         val userId = intent.getStringExtra("USER_ID") ?: ""
         currentUserId = intent.getStringExtra("CURRENT_USER_ID") ?: ""
 
         val btnEditProfile = findViewById<Button>(R.id.btnEditProfile)
         val fabCreatePost = findViewById<View>(R.id.fabCreatePost)
 
-        // 3. Lógica do botão Seguir
         if (userId != currentUserId && currentUserId.isNotEmpty()) {
             btnFollow.visibility = View.VISIBLE
             btnEditProfile.visibility = View.GONE
@@ -115,7 +115,11 @@ class ProfileActivity : AppCompatActivity() {
             getProfile(userId)
         }
     }
-
+    /**
+     * Procura e exibe os detalhes biográficos e estatísticos do utilizador.
+     * * Realiza o carregamento da imagem de perfil (Base64), nome de utilizador e bio.
+     * Após o sucesso, dispara o [loadUserPosts] para preencher a grelha de fotografias.
+     */
     private fun getProfile(userId: String) {
         apiService.getProfile(userId).enqueue(object : Callback<ProfileData> {
             override fun onResponse(call: Call<ProfileData>, response: Response<ProfileData>) {
@@ -143,15 +147,16 @@ class ProfileActivity : AppCompatActivity() {
             override fun onFailure(call: Call<ProfileData>, t: Throwable) {}
         })
     }
-
+    /**
+     * Carrega a coleção de publicações pertencentes ao utilizador do perfil.
+     * * Configura o [ProfilePostsAdapter] para organizar as imagens em grelha.
+     */
     private fun loadUserPosts(userId: String) {
         apiService.getUserPosts(userId).enqueue(object : Callback<List<PostItemResponse>> {
             override fun onResponse(call: Call<List<PostItemResponse>>, response: Response<List<PostItemResponse>>) {
                 if (response.isSuccessful) {
                     val userPosts = response.body() ?: emptyList()
 
-                    // 4. CORREÇÃO DA PASSAGEM DE ARGUMENTOS:
-                    // Passamos os dados e o ID do utilizador logado para o adaptador
                     recyclerView.adapter = ProfilePostsAdapter(userPosts, currentUserId) { post ->
                         Log.d("PROFILE", "Clicaste no post ${post._id}")
                     }

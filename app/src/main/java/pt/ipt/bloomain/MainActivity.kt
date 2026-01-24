@@ -19,6 +19,9 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 class MainActivity : AppCompatActivity() {
+    /**
+     * Inicializa a Activity principal de Login.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -54,22 +57,21 @@ class MainActivity : AppCompatActivity() {
 
             val apiService = retrofit.create(ApiService::class.java)
 
-            // CORREÇÃO AQUI: LoginRequest agora é chamado diretamente
+
             val loginRequest = LoginRequest(username, password)
 
-            // CORREÇÃO AQUI: Imports de Callback e Response adicionados no topo
+
             apiService.login(loginRequest).enqueue(object : Callback<LoginResponse> {
                 override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
                     if (response.isSuccessful) {
-                        // 1. Criar a Intent para o Perfil
+
                         val intent = Intent(this@MainActivity, FeedActivity::class.java)
 
-                        // 2. EXTRAIR o userId do servidor e colocá-lo na Intent
-                        // O userId vem do objeto LoginResponse definido no teu ApiService.kt
+
                         val userId = response.body()?.userId
                         intent.putExtra("USER_ID", userId)
 
-                        // 3. Iniciar a atividade e fechar o login
+
                         startActivity(intent)
                         finish()
                     } else {
@@ -84,6 +86,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Gere a propagação de eventos de toque para fechar o teclado automaticamente.
+     */
     override fun dispatchTouchEvent(event: MotionEvent): Boolean {
         if (event.action == MotionEvent.ACTION_DOWN) {
             val v = currentFocus

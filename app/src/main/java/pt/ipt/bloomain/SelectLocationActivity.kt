@@ -17,6 +17,9 @@ class SelectLocationActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var mMap: GoogleMap
     private var tempLocation: String = ""
 
+    /**
+     * Activity para seleção de coordenadas geográficas através de um mapa interativo.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_select_location)
@@ -28,10 +31,13 @@ class SelectLocationActivity : AppCompatActivity(), OnMapReadyCallback {
             val resultIntent = Intent()
             resultIntent.putExtra("SELECTED_LOCATION", tempLocation)
             setResult(RESULT_OK, resultIntent)
-            finish() // Volta para a CreatePostActivity
+            finish()
         }
     }
 
+    /**
+     * Configura o comportamento do mapa assim que este estiver carregado e pronto a usar.
+     */
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         val tomar = LatLng(39.59955518526609, -8.389549138467965)

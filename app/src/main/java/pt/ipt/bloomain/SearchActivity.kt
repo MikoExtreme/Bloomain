@@ -28,6 +28,9 @@ class SearchActivity : AppCompatActivity() {
             .create(ApiService::class.java)
     }
 
+    /**
+     * Gere a funcionalidade de pesquisa de utilizadores em tempo real.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
@@ -44,7 +47,6 @@ class SearchActivity : AppCompatActivity() {
                 if (query.length >= 2) {
                     performSearch(query)
                 } else {
-                    // Limpa a lista se houver menos de 2 letras
                     recyclerView.adapter = UserSearchAdapter(emptyList(), currentUserId)
                 }
             }
@@ -53,6 +55,9 @@ class SearchActivity : AppCompatActivity() {
         })
     }
 
+    /**
+     * Executa a chamada à API para filtrar utilizadores com base numa string de consulta.
+     */
     private fun performSearch(query: String) {
         apiService.searchUsers(query).enqueue(object : Callback<List<ProfileData>> {
             override fun onResponse(call: Call<List<ProfileData>>, response: Response<List<ProfileData>>) {

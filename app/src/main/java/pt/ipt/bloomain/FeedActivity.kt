@@ -24,7 +24,7 @@ class FeedActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var userId: String
 
-    // 1. Centralizamos o ApiService para o poderes usar em qualquer lado da classe
+
     private val apiService by lazy {
         Retrofit.Builder()
             .baseUrl("http://192.168.1.211:3000/")
@@ -32,7 +32,9 @@ class FeedActivity : AppCompatActivity() {
             .build()
             .create(ApiService::class.java)
     }
-
+    /**
+     * Inicializa a Activity principal do Feed.
+     */
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,7 +54,7 @@ class FeedActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.feedRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        // 2. Lógica da Foto do Utilizador Logado (Circular no Topo)
+
         val ivUserLogged = findViewById<ImageView>(R.id.ivUserLogged)
 
         if (userId.isNotEmpty()) {
@@ -77,7 +79,7 @@ class FeedActivity : AppCompatActivity() {
             })
         }
 
-        // 3. Clique na foto do topo para abrir o próprio perfil
+
         findViewById<View>(R.id.cvUserLogged).setOnClickListener {
             val intent = Intent(this, ProfileActivity::class.java)
             intent.putExtra("USER_ID", userId)
@@ -94,6 +96,9 @@ class FeedActivity : AppCompatActivity() {
         loadFeed()
     }
 
+    /**
+     * Solicita a lista global de publicações ao servidor e atualiza a interface.
+     */
     private fun loadFeed() {
         apiService.getFeed().enqueue(object : Callback<List<PostItemResponse>> {
             override fun onResponse(call: Call<List<PostItemResponse>>, response: Response<List<PostItemResponse>>) {
@@ -118,6 +123,9 @@ class FeedActivity : AppCompatActivity() {
         })
     }
 
+    /**
+     * Like num Post
+     */
     private fun likePost(postId: String) {
         val body = mapOf("userId" to userId)
         apiService.toggleLike(postId, body).enqueue(object : Callback<PostResponse> {
@@ -134,6 +142,9 @@ class FeedActivity : AppCompatActivity() {
         })
     }
 
+    /**
+     * Atualiza os dados da Activity sempre que o utilizador regressa a esta tela.
+     */
     override fun onResume() {
         super.onResume()
         loadFeed()

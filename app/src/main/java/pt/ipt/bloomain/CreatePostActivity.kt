@@ -39,8 +39,9 @@ class CreatePostActivity : AppCompatActivity() {
     private var userId: String = ""
 
 
-
-    // 2. Launcher para abrir o mapa e esperar pelo resultado
+    /**
+     * Launcher para abrir o mapa e esperar pelo resultado
+     */
     private val getTargetLocation = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK) {
             val data: Intent? = result.data
@@ -50,6 +51,13 @@ class CreatePostActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Inicializa a Activity de criação de publicações.
+     * Também define os ouvintes para:
+     * 1. Capturar uma fotografia via CameraX.
+     * 2. Abrir um mapa para seleção de localização geográfica.
+     * 3. Publicar o post (imagem + legenda) para o servidor Node.js.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityCreatePostBinding.inflate(layoutInflater)
@@ -85,6 +93,9 @@ class CreatePostActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Configura e inicia o fluxo da câmara utilizando o CameraX.
+     */
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
         cameraProviderFuture.addListener({
@@ -103,6 +114,9 @@ class CreatePostActivity : AppCompatActivity() {
         }, ContextCompat.getMainExecutor(this))
     }
 
+    /**
+     * Tirar uma fotografia
+     */
     private fun takePhoto() {
         val imageCapture = imageCapture ?: return
         imageCapture.takePicture(
@@ -124,7 +138,9 @@ class CreatePostActivity : AppCompatActivity() {
         )
     }
 
-
+    /**
+     * Publicar Post
+     */
     private fun publishPost(caption: String) {
         val retrofit = Retrofit.Builder()
             .baseUrl("http://192.168.1.211:3000/")
@@ -153,7 +169,7 @@ class CreatePostActivity : AppCompatActivity() {
         })
     }
 
-    // --- Lógica de Permissões ---
+  //Permissões na Criação dos Posts
     private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
         ContextCompat.checkSelfPermission(baseContext, it) == PackageManager.PERMISSION_GRANTED
     }
@@ -163,7 +179,7 @@ class CreatePostActivity : AppCompatActivity() {
     }
 
     private fun requestPermissions() {
-        // Agora usa a lista completa (Câmara + Localização) definida no companion object
+
         activityResultLauncher.launch(REQUIRED_PERMISSIONS)
     }
 

@@ -26,7 +26,9 @@ class ProfilePostsAdapter(
         val v = LayoutInflater.from(parent.context).inflate(R.layout.item_post_grid, parent, false)
         return GridViewHolder(v)
     }
-
+    /**
+     * Vincula os dados da publicação à célula da grelha e configura o evento de clique.
+     */
     override fun onBindViewHolder(holder: GridViewHolder, position: Int) {
         val post = items[position]
 
@@ -40,7 +42,6 @@ class ProfilePostsAdapter(
             }
         }
 
-        // 2. Configura o clique para abrir o detalhe
         holder.itemView.setOnClickListener {
             val context = holder.itemView.context
             val intent = Intent(context, PostDetailActivity::class.java).apply {
@@ -49,7 +50,6 @@ class ProfilePostsAdapter(
             }
             context.startActivity(intent)
 
-            // Também executa o callback original se necessário
             onClick(post)
         }
     }

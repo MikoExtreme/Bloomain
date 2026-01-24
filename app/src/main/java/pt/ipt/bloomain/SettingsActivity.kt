@@ -21,7 +21,6 @@ class SettingsActivity : AppCompatActivity() {
 
     private var base64Image: String = ""
 
-    // Seletor de Imagem (Igual ao do teu Registo)
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
             val inputStream = contentResolver.openInputStream(it)
@@ -41,15 +40,16 @@ class SettingsActivity : AppCompatActivity() {
         .build()
         .create(ApiService::class.java)
 
+    /**
+     * Gere as configurações da conta e preferências do utilizador.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Certifica-te que o nome do layout é 'activity_settings' (o ficheiro que criámos)
         setContentView(R.layout.settings)
 
         val userId = intent.getStringExtra("USER_ID") ?: ""
         val currentUserName = intent.getStringExtra("CURRENT_USERNAME") ?: ""
 
-        // 1. IR PARA EDITAR PERFIL (Nome, Bio e Password)
         findViewById<Button>(R.id.btnEditProfile).setOnClickListener {
             val intent = Intent(this, EditCredentialsActivity::class.java)
             intent.putExtra("USER_ID", userId)
@@ -57,19 +57,17 @@ class SettingsActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        // 2. IR PARA EDITAR IMAGEM
         findViewById<Button>(R.id.item_section_image).setOnClickListener {
             val intent = Intent(this, EditImageActivity::class.java)
             intent.putExtra("USER_ID", userId)
             startActivity(intent)
         }
 
-        // 3. VOLTAR ATRÁS
+
         findViewById<ImageButton>(R.id.go_back).setOnClickListener {
             finish()
         }
 
-        // 4. LOGOUT (Limpa o histórico e volta ao Login)
         findViewById<Button>(R.id.log_out).setOnClickListener {
             val intent = Intent(this, MainActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -77,26 +75,21 @@ class SettingsActivity : AppCompatActivity() {
             finish()
         }
 
-        // 1. Localizar o botão
         val btnDeleteAccount = findViewById<Button>(R.id.btnDeleteAccount)
 
         btnDeleteAccount.setOnClickListener {
-            // Cria o Alerta de Confirmação
             val builder = android.app.AlertDialog.Builder(this)
             builder.setTitle("Atenção!")
             builder.setMessage("Tens a certeza que queres eliminar a tua conta? Todos os teus posts e comentários serão apagados permanentemente.")
 
-            // Botão Positivo (Apagar)
             builder.setPositiveButton("Sim, Eliminar") { _, _ ->
                 val userId = intent.getStringExtra("USER_ID") ?: ""
 
-                // Chamada à API apenas se o utilizador confirmar
                 apiService.deleteAccount(userId).enqueue(object : Callback<PostResponse> {
                     override fun onResponse(call: Call<PostResponse>, response: Response<PostResponse>) {
                         if (response.isSuccessful) {
                             Toast.makeText(this@SettingsActivity, "Conta eliminada com sucesso", Toast.LENGTH_LONG).show()
 
-                            // Limpa o histórico e volta para o ecrã de Login (MainActivity)
                             val intent = Intent(this@SettingsActivity, MainActivity::class.java)
                             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                             startActivity(intent)
@@ -112,18 +105,17 @@ class SettingsActivity : AppCompatActivity() {
                 })
             }
 
-            // Botão Negativo (Cancelar - não faz nada e fecha o diálogo)
             builder.setNegativeButton("Cancelar", null)
 
-            // Mostra o diálogo no ecrã
             builder.show()
         }
 
     }
 
+    /**
+     * Envia uma nova representação Base64 da imagem de perfil diretamente para o servidor.
+     */
     private fun updateProfileImage(base64: String) {
-        // Pega o ID do utilizador (podes passar via Intent ou usar SharedPreferences)
-        // Por agora, vamos assumir que o ID vem da Intent que abriu as definições
         val userId = intent.getStringExtra("USER_ID") ?: ""
 
         if (userId.isEmpty()) {
@@ -131,13 +123,9 @@ class SettingsActivity : AppCompatActivity() {
             return
         }
 
-        // Criar o Retrofit exatamente como fizeste no Registo
 
-
-        // Criamos um mapa com o campo que queremos mudar
         val updateData = mapOf("profileImage" to base64)
 
-        // Nota: Precisas de ter a função 'updateUser' no teu ApiService.kt
         apiService.updateUser(userId, updateData).enqueue(object : Callback<User> {
             override fun onResponse(call: Call<User>, response: Response<User>) {
                 if (response.isSuccessful) {

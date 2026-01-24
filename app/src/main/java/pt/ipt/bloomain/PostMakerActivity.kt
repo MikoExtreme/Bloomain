@@ -18,12 +18,14 @@ class PostMakerActivity : AppCompatActivity() {
     private var postBase64: String = ""
     private lateinit var imgPreview: ImageView
 
+    /**
+     * Gere a seleção de imagens da galeria e a sua preparação para upload.
+     */
     private val pickImage = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
             imgPreview.visibility = View.VISIBLE
             imgPreview.setImageURI(it)
 
-            // Converter imagem para Base64
             val bytes = contentResolver.openInputStream(it)?.readBytes()
             if (bytes != null) {
                 postBase64 = Base64.encodeToString(bytes, Base64.NO_WRAP)
@@ -31,11 +33,14 @@ class PostMakerActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Inicializa a interface de criação de posts e configura a lógica de publicação.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.post_maker)
 
-        // Recuperar o ID do utilizador logado (enviado via Intent)
+
         val userId = intent.getStringExtra("USER_ID") ?: ""
 
         imgPreview = findViewById(R.id.imgPostPreview)
@@ -59,7 +64,7 @@ class PostMakerActivity : AppCompatActivity() {
                 .build()
                 .create(ApiService::class.java)
 
-            // Criar o pedido (Usamos a descrição como título e texto por agora)
+
             val request = PostRequest(
                 title = "Nova Publicação",
                 description = description,
@@ -74,7 +79,7 @@ class PostMakerActivity : AppCompatActivity() {
                 override fun onResponse(call: Call<PostResponse>, response: Response<PostResponse>) {
                     if (response.isSuccessful) {
                         Toast.makeText(this@PostMakerActivity, "Publicado!", Toast.LENGTH_SHORT).show()
-                        finish() // Fecha e volta ao perfil/feed
+                        finish()
                     }
                 }
 
