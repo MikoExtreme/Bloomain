@@ -59,6 +59,11 @@ class ProfileActivity : AppCompatActivity() {
         tvFollowing = findViewById(R.id.followingCountText)
         btnFollow = findViewById(R.id.btnFollow)
 
+        val profileUserId = intent.getStringExtra("USER_ID") ?: ""
+        currentUserId = intent.getStringExtra("CURRENT_USER_ID") ?: ""
+
+
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.profile)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -69,11 +74,19 @@ class ProfileActivity : AppCompatActivity() {
         val userId = intent.getStringExtra("USER_ID") ?: ""
         currentUserId = intent.getStringExtra("CURRENT_USER_ID") ?: ""
 
+        val btnEditProfile = findViewById<Button>(R.id.btnEditProfile)
+        val fabCreatePost = findViewById<View>(R.id.fabCreatePost)
+
         // 3. Lógica do botão Seguir
         if (userId != currentUserId && currentUserId.isNotEmpty()) {
             btnFollow.visibility = View.VISIBLE
+            btnEditProfile.visibility = View.GONE
+            fabCreatePost.visibility = View.GONE
+
         } else {
             btnFollow.visibility = View.GONE
+            btnEditProfile.visibility = View.VISIBLE
+            fabCreatePost.visibility = View.VISIBLE
         }
 
         btnFollow.setOnClickListener {

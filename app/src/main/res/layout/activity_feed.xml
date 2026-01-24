@@ -55,7 +55,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="24dp"
-        android:layout_marginBottom="28dp"
         android:contentDescription="Criar Post"
         android:src="@android:drawable/ic_input_add"
         app:backgroundTint="#2E7D32"
@@ -63,21 +62,17 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:tint="#FFFFFF" />
 
-    <ImageButton
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btnOpenSearch"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
-        android:layout_margin="24dp"
-
-        android:layout_marginStart="56dp"
-        android:layout_marginBottom="436dp"
-        android:elevation="6dp"
-        android:padding="12dp"
-        android:scaleType="fitCenter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="92dp"
+        android:layout_marginBottom="24dp"
+        android:contentDescription="Pesquisar"
         android:src="@android:drawable/ic_menu_search"
+        app:backgroundTint="#FFFFFF"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:tint="#2E7D32" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

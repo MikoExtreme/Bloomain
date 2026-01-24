@@ -1,6 +1,5 @@
 package pt.ipt.bloomain
 
-import android.R
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -9,7 +8,7 @@ import retrofit2.http.DELETE
 import retrofit2.http.PATCH
 import retrofit2.http.Path
 
-// Perfil
+//Perfil
 data class ProfileData(
     val _id: String,
     val username: String,
@@ -17,13 +16,13 @@ data class ProfileData(
     val profileImage: String,
     val stats: StatsData
 )
-
+//Status do Utilizador
 data class StatsData(
     val posts: Int,
     val followers: Int,
     val following: Int
 )
-
+//Detalhes do Post
 data class PostRequest(
     val title: String,
     val description: String,
@@ -37,7 +36,7 @@ data class PostItemResponse(
     val title: String,
     val description: String,
     val postImage: String,
-    val creator: CreatorInfo, // Dados do utilizador que criou
+    val creator: CreatorInfo,
     val likes: List<String>,
     val createdAt: String
 )
@@ -85,7 +84,7 @@ data class FollowResponse(val message: String, val isFollowing: Boolean)
 
 
 
-// --- INTERFACE DE COMUNICAÇÃO ---
+
 
 interface ApiService {
 
@@ -95,13 +94,12 @@ interface ApiService {
     @POST("login")
     fun login(@Body loginData: LoginRequest): Call<LoginResponse>
 
-    @POST("register") // Nova rota para o registo
+    @POST("register")
     fun register(@Body registerData: RegisterRequest): Call<RegisterResponse>
 
     @POST("posts")
     fun createPost(@Body postData: PostRequest): Call<PostResponse>
 
-    // Rota para buscar o Feed
     @GET("posts")
     fun getFeed(): Call<List<PostItemResponse>>
 
@@ -115,7 +113,7 @@ interface ApiService {
     fun updateUser(@Path("id") id: String, @Body data: Map<String, String>): Call<User>
 
 
-    @POST("posts/{postId}/like") // Verifica se no Node.js a rota é exatamente esta
+    @POST("posts/{postId}/like")
     fun toggleLike(
         @Path("postId") postId: String,
         @Body request: Map<String, String>
@@ -123,8 +121,7 @@ interface ApiService {
 
 
 
-    // Para buscar comentários de um post (Vais precisar de criar esta rota no Node.js depois)
-    // No ApiService.kt, altera para 'Comment'
+
     @GET("posts/{postId}/comments")
     fun getComments(@Path("postId") postId: String): Call<List<Comment>>
 
@@ -133,7 +130,7 @@ interface ApiService {
     fun updatePassword(
         @Path("id") id: String,
         @Body data: Map<String, String>
-    ): Call<PostResponse> // Reutilizamos o PostResponse para a mensagem de sucesso
+    ): Call<PostResponse>
 
 
     @PATCH("users/{id}")
@@ -149,7 +146,6 @@ interface ApiService {
         @Body body: Map<String, String>
     ): Call<FollowResponse>
 
-    // Cria também este data class no topo do ficheiro
 
     @DELETE("comments/{id}")
     fun deleteComment(@Path("id") commentId: String): Call<PostResponse>

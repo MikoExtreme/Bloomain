@@ -1,62 +1,48 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const User = require('./models/User'); // Importa o modelo que criaste
+const User = require('./models/User');
 const Post = require('./models/Post');
 const Comment = require('./models/Comment');
 const app = express();
 const PORT = 3000;
+const bcrypt = require('bcrypt');
 
 // 1. Configuração de Limites para Base64 e JSON
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-// 2. Ligação ao MongoDB Atlas (Adicionei o nome da DB 'bloomainDB')
+// 2. Ligação ao MongoDB Atlas
 const mongoURI = "mongodb+srv://aluno25939_db_user:Dodot123!@damcluster.ty3jnxv.mongodb.net/bloomainDB?appName=DAMCluster";
 
 mongoose.connect(mongoURI)
-  .then(() => console.log("✅ Ligado ao MongoDB com sucesso!"))
-  .catch(err => console.error("❌ Erro ao ligar ao MongoDB:", err));
+  .then(() => console.log("Ligado ao MongoDB com sucesso!"))
+  .catch(err => console.error("Erro ao ligar ao MongoDB:", err));
 
-// --- ROTAS ---
+// Rotas
 
 // Rota de teste
 app.get('/', (req, res) => {
     res.send('Servidor Bloomain está a funcionar!');
 });
 
-// Rota de Registo REAL (Grava no MongoDB)
+// Registo
 app.post('/register', async (req, res) => {
     try {
         const { username, email, password, profileImage } = req.body;
 
-        // 1. Validar formato de email no servidor (Segurança extra)
-        const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-        if (!emailRegex.test(email)) {
-            return res.status(400).json({ message: "O formato do email é inválido." });
-        }
-
-        // 2. Verificar se o username já existe
-        const existingUser = await User.findOne({ username });
+        const existingUser = await User.findOne({ $or: [{ username }, { email }] });
         if (existingUser) {
-            return res.status(400).json({ message: "Este nome de utilizador já está em uso." });
+            const field = existingUser.username === username ? "Username" : "Email";
+            return res.status(400).json({ message: `${field} já está em uso.` });
         }
 
-        // 3. Verificar se o email já existe
-        const existingEmail = await User.findOne({ email });
-        if (existingEmail) {
-            return res.status(400).json({ message: "Este email já está registado." });
-        }
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-        // 4. Validar força da password (opcional, mas recomendado)
-        if (password.length < 8) {
-            return res.status(400).json({ message: "A password deve ter pelo menos 8 caracteres." });
-        }
-
-        // 5. Criar o novo utilizador
         const newUser = new User({
             username,
             email,
-            password, // Lembra-te que o ideal é usar bcrypt.hash(password, 10) aqui!
+            password: hashedPassword,
             bio: "",
             profileImage: profileImage || "",
             stats: { posts: 0, followers: 0, following: 0 }
@@ -64,21 +50,18 @@ app.post('/register', async (req, res) => {
 
         await newUser.save();
         res.status(201).json({ message: "Utilizador registado com sucesso!" });
-        console.log(`👤 Novo utilizador na DB: ${username}`);
-
     } catch (error) {
-        console.error("Erro no registo:", error);
-        res.status(500).json({ message: "Erro interno no servidor ao processar o registo." });
+        res.status(500).json({ message: "Erro interno no servidor." });
     }
 });
 
-// Rota de Login REAL (Verifica na DB)
+// Login
 app.post('/login', async (req, res) => {
     try {
         const { username, password } = req.body;
-        const user = await User.findOne({ username, password });
+        const user = await User.findOne({ username });
 
-        if (user) {
+        if (user && await bcrypt.compare(password, user.password)) {
             res.status(200).json({
                 message: "Login com sucesso!",
                 userId: user._id,
@@ -92,8 +75,7 @@ app.post('/login', async (req, res) => {
     }
 });
 
-// Rota de Perfil (Agora podes buscar por utilizador real no futuro)
-// Rota para buscar os dados reais do perfil
+// Perfil 
 app.get('/profile/:userId', async (req, res) => {
     try {
         const user = await User.findById(req.params.userId);
@@ -104,7 +86,6 @@ app.get('/profile/:userId', async (req, res) => {
             bio: user.bio || "",
             profileImage: user.profileImage,
             stats: {
-                // IMPORTANTE: Usar .length para enviar um número e não a lista toda
                 posts: user.posts.length,
                 followers: user.followers.length,
                 following: user.following.length
@@ -116,6 +97,7 @@ app.get('/profile/:userId', async (req, res) => {
 });
 
 
+// Criar Post
 app.post('/posts', async (req, res) => {
     try {
         const { title, description, postImage, location, creatorId } = req.body;
@@ -123,14 +105,13 @@ app.post('/posts', async (req, res) => {
         const newPost = new Post({
             title,
             description,
-            postImage, // String Base64
+            postImage, 
             location,
             creator: creatorId
         });
 
         const savedPost = await newPost.save();
 
-        // IMPORTANTE: Adicionar o ID do post à lista de posts do utilizador
         await User.findByIdAndUpdate(creatorId, {
             $push: { posts: savedPost._id }
         });
@@ -146,13 +127,12 @@ app.post('/posts', async (req, res) => {
 
 
 
-// 2. Buscar todos os posts (Lobby / Feed)
-// Usamos .populate('creator') para trazer o nome e foto do dono do post
+// Feed
 app.get('/posts', async (req, res) => {
     try {
         const posts = await Post.find()
             .populate('creator', 'username profileImage') 
-            .sort({ createdAt: -1 }); // Mais recentes primeiro
+            .sort({ createdAt: -1 }); 
 
         res.status(200).json(posts);
     } catch (error) {
@@ -160,18 +140,10 @@ app.get('/posts', async (req, res) => {
     }
 });
 
-// --- ROTA DE SETTINGS (Exemplo: Mudar Bio) ---
-app.put('/settings/bio', async (req, res) => {
-    try {
-        const { userId, newBio } = req.body;
-        await User.findByIdAndUpdate(userId, { bio: newBio });
-        res.status(200).json({ message: "Bio atualizada!" });
-    } catch (error) {
-        res.status(500).json({ message: "Erro ao atualizar definições." });
-    }
-});
 
 
+
+// Criar Comentário
 app.post('/comments', async (req, res) => {
     try {
         const { creatorId, postId, description } = req.body;
@@ -184,7 +156,6 @@ app.post('/comments', async (req, res) => {
 
         const savedComment = await newComment.save();
 
-        // IMPORTANTE: Adicionar o ID do comentário à lista de comments do Post
         await Post.findByIdAndUpdate(postId, {
             $push: { comments: savedComment._id }
         });
@@ -193,7 +164,7 @@ app.post('/comments', async (req, res) => {
             message: "Comentário adicionado!", 
             commentId: savedComment._id 
         });
-        console.log(`💬 Novo comentário no post ${postId} pelo user ${creatorId}`);
+        console.log(`Novo comentário no post ${postId} pelo user ${creatorId}`);
     } catch (error) {
         console.error(error);
         res.status(400).json({ message: "Erro ao adicionar comentário." });
@@ -201,6 +172,7 @@ app.post('/comments', async (req, res) => {
 });
 
 
+// Get dos Posts do Utilizador
 app.get('/posts/user/:userId', async (req, res) => {
     try {
         const posts = await Post.find({ creator: req.params.userId })
@@ -213,11 +185,20 @@ app.get('/posts/user/:userId', async (req, res) => {
 });
 
 
-// Rota para atualizar o utilizador
+// Atualizar dados do Utilizador
 app.patch('/users/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const updates = req.body; // Aqui virá o { "profileImage": "base64..." }
+        const { loggedInUserId, password, ...updates } = req.body;
+
+        if (id !== loggedInUserId) {
+            return res.status(403).json({ message: "Ação não autorizada. Não podes editar este perfil." });
+        }
+
+        if (password) {
+            const saltRounds = 10;
+            updates.password = await bcrypt.hash(password, saltRounds);
+        }
 
         const updatedUser = await User.findByIdAndUpdate(id, updates, { new: true });
         
@@ -227,13 +208,13 @@ app.patch('/users/:id', async (req, res) => {
 
         res.json(updatedUser);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: "Erro ao atualizar perfil: " + error.message });
     }
 });
 
 
 
-// Rota para Alternar Like (Toggle Like)
+// Likes
 app.post('/posts/:postId/like', async (req, res) => {
     try {
         const { postId } = req.params;
@@ -242,16 +223,13 @@ app.post('/posts/:postId/like', async (req, res) => {
         const post = await Post.findById(postId);
         if (!post) return res.status(404).json({ message: "Post não encontrado" });
 
-        // Verifica se o utilizador já deu like
         const index = post.likes.indexOf(userId);
 
         if (index === -1) {
-            // Se não deu like, adiciona o ID do utilizador ao array
             post.likes.push(userId);
             await post.save();
             res.status(200).json({ message: "Like adicionado!", likes: post.likes });
         } else {
-            // Se já deu like, remove o ID (Desfazer Like)
             post.likes.splice(index, 1);
             await post.save();
             res.status(200).json({ message: "Like removido!", likes: post.likes });
@@ -263,14 +241,12 @@ app.post('/posts/:postId/like', async (req, res) => {
 
 
 
-
+// Buscar Comentários
 app.get('/posts/:postId/comments', async (req, res) => {
     try {
         const { postId } = req.params;
 
-        // 1. Procuramos o post pelo ID
-        // 2. Usamos o .populate para buscar os dados dos comentários
-        // 3. Dentro do comentário, fazemos outro .populate para saber quem escreveu (username e foto)
+        
         const post = await Post.findById(postId).populate({
             path: 'comments',
             populate: {
@@ -283,7 +259,6 @@ app.get('/posts/:postId/comments', async (req, res) => {
             return res.status(404).json({ message: "Post não encontrado" });
         }
 
-        // Retornamos apenas a lista de comentários do post
         res.status(200).json(post.comments);
     } catch (error) {
         console.error(error);
@@ -293,30 +268,12 @@ app.get('/posts/:postId/comments', async (req, res) => {
 
 
 
-app.patch('/users/:id/password', async (req, res) => {
-    const { newPassword } = req.body;
-    // Aqui deves atualizar o campo password no teu modelo User do MongoDB
-    await User.findByIdAndUpdate(req.params.id, { password: newPassword });
-    res.json({ message: "Password atualizada com sucesso!" });
-});
 
-
-app.patch('/users/:id', async (req, res) => {
-    try {
-        const updates = req.body;
-        // Se houver password, podes querer encriptá-la aqui antes de guardar
-        const user = await User.findByIdAndUpdate(req.params.id, updates, { new: true });
-        res.json(user);
-    } catch (err) {
-        res.status(500).send("Erro ao atualizar perfil");
-    }
-});
-
-
+// Follow
 app.post('/users/:id/follow', async (req, res) => {
     try {
-        const { id } = req.params; // ID de quem vai ser seguido
-        const { followerId } = req.body; // O teu ID (quem está a clicar no botão)
+        const { id } = req.params;
+        const { followerId } = req.body;
 
         if (id === followerId) return res.status(400).json({ message: "Não podes seguir-te a ti mesmo" });
 
@@ -326,14 +283,12 @@ app.post('/users/:id/follow', async (req, res) => {
         const index = userToFollow.followers.indexOf(followerId);
 
         if (index === -1) {
-            // Seguir
             userToFollow.followers.push(followerId);
             me.following.push(id);
             await userToFollow.save();
             await me.save();
             res.json({ message: "Seguindo!", isFollowing: true });
         } else {
-            // Deixar de seguir (Unfollow)
             userToFollow.followers.splice(index, 1);
             me.following.splice(me.following.indexOf(id), 1);
             await userToFollow.save();
@@ -346,7 +301,7 @@ app.post('/users/:id/follow', async (req, res) => {
 });
 
 
-// 1. Apagar um Comentário
+// Apagar Comentário
 app.delete('/comments/:id', async (req, res) => {
     try {
         await Comment.findByIdAndDelete(req.params.id);
@@ -356,11 +311,10 @@ app.delete('/comments/:id', async (req, res) => {
     }
 });
 
-// 2. Apagar uma Publicação (Post)
+// Apagar Post
 app.delete('/posts/:id', async (req, res) => {
     try {
         await Post.findByIdAndDelete(req.params.id);
-        // Opcional: Apagar também os comentários deste post
         await Comment.deleteMany({ postId: req.params.id });
         res.json({ message: "Post removido" });
     } catch (error) {
@@ -368,40 +322,31 @@ app.delete('/posts/:id', async (req, res) => {
     }
 });
 
-// 3. Apagar a Conta
+// Apagar Utilizador
 app.delete('/users/:id', async (req, res) => {
     try {
-        const userId = req.params.id;
+        const userIdToDelete = req.params.id;
+        const { loggedInUserId } = req.body; 
 
-        // 1. Remover o ID deste utilizador das listas de 'following' de toda a gente
-        // (Quem o seguia, deixa de o seguir)
-        await User.updateMany(
-            { following: userId }, 
-            { $pull: { following: userId } }
-        );
+        if (userIdToDelete !== loggedInUserId) {
+            return res.status(403).json({ message: "Ação não autorizada. Não podes apagar esta conta." });
+        }
 
-        // 2. Remover o ID deste utilizador das listas de 'followers' de toda a gente
-        // (Quem ele seguia, perde um seguidor)
-        await User.updateMany(
-            { followers: userId }, 
-            { $pull: { followers: userId } }
-        );
+        await User.updateMany({ following: userIdToDelete}, { $pull: { following: userIdToDelete } });
+        await User.updateMany({ followers: userIdToDelete }, { $pull: { followers: userIdToDelete } });
 
-        // 3. Apagar os dados criados por ele (Posts e Comentários)
-        await Post.deleteMany({ creator: userId });
-        await Comment.deleteMany({ creatorId: userId });
+        await Post.deleteMany({ creator: userIdToDelete });
+        await Comment.deleteMany({ creatorId: userIdToDelete });
 
-        // 4. Finalmente, apagar o utilizador em si
-        await User.findByIdAndDelete(userId);
+        await User.findByIdAndDelete(userIdToDelete);
 
         res.json({ message: "Utilizador e conexões removidas com sucesso." });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "Erro ao limpar rasto do utilizador" });
+        res.status(500).json({ error: "Erro ao apagar conta" });
     }
 });
 
-
+// Detalhes do Post
 app.get('/posts/single/:postId', async (req, res) => {
     try {
         const post = await Post.findById(req.params.postId).populate('creator');
@@ -411,7 +356,7 @@ app.get('/posts/single/:postId', async (req, res) => {
     }
 });
 
-
+// Pesquisar Utilizadores
 app.get('/users/search/:query', async (req, res) => {
     try {
         const query = req.params.query;
@@ -426,7 +371,7 @@ app.get('/users/search/:query', async (req, res) => {
     }
 });
 
-
+// Ligar o Servidor
 app.listen(PORT, () => {
     console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
 });
