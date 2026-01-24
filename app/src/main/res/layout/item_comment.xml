@@ -2,21 +2,25 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal"
-    android:padding="10dp">
+    android:padding="10dp"
+    android:background="@color/light_earth_brown">
 
-    <ImageView
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/ivCommentAvatar"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:scaleType="centerCrop"
-        android:src="@android:drawable/ic_menu_gallery" />
+        android:src="@drawable/logo_oficial_bloomainv2"
+        app:shapeAppearanceOverlay="@style/CircleImage" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:backgroundTint="@color/light_earth_brown">
 
         <TextView
             android:id="@+id/tvCommentUsername"

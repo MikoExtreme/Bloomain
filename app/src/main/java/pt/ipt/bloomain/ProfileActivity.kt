@@ -75,18 +75,16 @@ class ProfileActivity : AppCompatActivity() {
         currentUserId = intent.getStringExtra("CURRENT_USER_ID") ?: ""
 
         val btnEditProfile = findViewById<Button>(R.id.btnEditProfile)
-        val fabCreatePost = findViewById<View>(R.id.fabCreatePost)
+
 
         // 3. Lógica do botão Seguir
         if (userId != currentUserId && currentUserId.isNotEmpty()) {
             btnFollow.visibility = View.VISIBLE
             btnEditProfile.visibility = View.GONE
-            fabCreatePost.visibility = View.GONE
 
         } else {
             btnFollow.visibility = View.GONE
             btnEditProfile.visibility = View.VISIBLE
-            fabCreatePost.visibility = View.VISIBLE
         }
 
         btnFollow.setOnClickListener {

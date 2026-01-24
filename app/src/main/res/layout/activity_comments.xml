@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:backgroundTint="@color/light_earth_brown">
+    android:background="@color/light_earth_brown">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvComments"
@@ -20,7 +20,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="8dp"
-        android:background="#EEEEEE"
+        android:background="@color/more_light_brown"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <EditText
@@ -28,7 +28,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="Escreve um comentário..." />
+            android:hint="Escreve um comentário..."
+            />
 
         <Button
             android:id="@+id/btnSendComment"

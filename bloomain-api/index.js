@@ -7,25 +7,32 @@ const app = express();
 const PORT = 3000;
 const bcrypt = require('bcrypt');
 
-// 1. Configuração de Limites para Base64 e JSON
+/**
+ * Configuração de Limites para Base64 e JSON
+ */
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-// 2. Ligação ao MongoDB Atlas
+/**
+ * Ligação ao MongoDB Atlas
+ */
 const mongoURI = "mongodb+srv://aluno25939_db_user:Dodot123!@damcluster.ty3jnxv.mongodb.net/bloomainDB?appName=DAMCluster";
 
 mongoose.connect(mongoURI)
   .then(() => console.log("Ligado ao MongoDB com sucesso!"))
   .catch(err => console.error("Erro ao ligar ao MongoDB:", err));
 
-// Rotas
 
-// Rota de teste
+/**
+ * Rota de teste
+ */
 app.get('/', (req, res) => {
     res.send('Servidor Bloomain está a funcionar!');
 });
 
-// Registo
+/**
+ * Registo
+ */
 app.post('/register', async (req, res) => {
     try {
         const { username, email, password, profileImage } = req.body;
@@ -55,7 +62,9 @@ app.post('/register', async (req, res) => {
     }
 });
 
-// Login
+/**
+ * Login
+ */
 app.post('/login', async (req, res) => {
     try {
         const { username, password } = req.body;
@@ -75,7 +84,9 @@ app.post('/login', async (req, res) => {
     }
 });
 
-// Perfil 
+/**
+ * Perfil 
+ */
 app.get('/profile/:userId', async (req, res) => {
     try {
         const user = await User.findById(req.params.userId);
@@ -97,7 +108,9 @@ app.get('/profile/:userId', async (req, res) => {
 });
 
 
-// Criar Post
+/**
+ * Criar Post
+ */
 app.post('/posts', async (req, res) => {
     try {
         const { title, description, postImage, location, creatorId } = req.body;
@@ -127,7 +140,9 @@ app.post('/posts', async (req, res) => {
 
 
 
-// Feed
+/**
+ * Feed
+ */
 app.get('/posts', async (req, res) => {
     try {
         const posts = await Post.find()
@@ -143,7 +158,9 @@ app.get('/posts', async (req, res) => {
 
 
 
-// Criar Comentário
+/**
+ * Criar Comentário
+ */
 app.post('/comments', async (req, res) => {
     try {
         const { creatorId, postId, description } = req.body;
@@ -172,7 +189,9 @@ app.post('/comments', async (req, res) => {
 });
 
 
-// Get dos Posts do Utilizador
+/**
+ * Get dos Posts do Utilizador
+ */
 app.get('/posts/user/:userId', async (req, res) => {
     try {
         const posts = await Post.find({ creator: req.params.userId })
@@ -185,7 +204,9 @@ app.get('/posts/user/:userId', async (req, res) => {
 });
 
 
-// Atualizar dados do Utilizador
+/**
+ * Atualizar dados do Utilizador
+ */
 app.patch('/users/:id', async (req, res) => {
     try {
         const { id } = req.params;
@@ -214,7 +235,9 @@ app.patch('/users/:id', async (req, res) => {
 
 
 
-// Likes
+/**
+ * Likes
+ */
 app.post('/posts/:postId/like', async (req, res) => {
     try {
         const { postId } = req.params;
@@ -241,7 +264,9 @@ app.post('/posts/:postId/like', async (req, res) => {
 
 
 
-// Buscar Comentários
+/**
+ * Buscar Comentários
+ */
 app.get('/posts/:postId/comments', async (req, res) => {
     try {
         const { postId } = req.params;
@@ -269,7 +294,9 @@ app.get('/posts/:postId/comments', async (req, res) => {
 
 
 
-// Follow
+/**
+ * Seguir
+ */
 app.post('/users/:id/follow', async (req, res) => {
     try {
         const { id } = req.params;
@@ -301,7 +328,9 @@ app.post('/users/:id/follow', async (req, res) => {
 });
 
 
-// Apagar Comentário
+/**
+ * Apagar Comentário
+ */
 app.delete('/comments/:id', async (req, res) => {
     try {
         await Comment.findByIdAndDelete(req.params.id);
@@ -311,7 +340,9 @@ app.delete('/comments/:id', async (req, res) => {
     }
 });
 
-// Apagar Post
+/**
+ * Apagar Post
+ */
 app.delete('/posts/:id', async (req, res) => {
     try {
         await Post.findByIdAndDelete(req.params.id);
@@ -322,7 +353,9 @@ app.delete('/posts/:id', async (req, res) => {
     }
 });
 
-// Apagar Utilizador
+/**
+ * Apagar Utilizador
+ */
 app.delete('/users/:id', async (req, res) => {
     try {
         const userIdToDelete = req.params.id;
@@ -346,7 +379,10 @@ app.delete('/users/:id', async (req, res) => {
     }
 });
 
-// Detalhes do Post
+
+/**
+ * Detalhes do Post
+ */
 app.get('/posts/single/:postId', async (req, res) => {
     try {
         const post = await Post.findById(req.params.postId).populate('creator');
@@ -355,8 +391,9 @@ app.get('/posts/single/:postId', async (req, res) => {
         res.status(500).send();
     }
 });
-
-// Pesquisar Utilizadores
+/**
+ * Pesquisar Utilizadores
+ */
 app.get('/users/search/:query', async (req, res) => {
     try {
         const query = req.params.query;
@@ -371,7 +408,10 @@ app.get('/users/search/:query', async (req, res) => {
     }
 });
 
-// Ligar o Servidor
+
+/**
+ * Ligar o Servidor
+ */
 app.listen(PORT, () => {
     console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
 });

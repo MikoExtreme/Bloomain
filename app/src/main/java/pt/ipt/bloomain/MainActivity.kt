@@ -24,6 +24,15 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.login)
 
+        val btnAbout = findViewById<Button>(R.id.btnAboutLogin)
+
+        btnAbout.setOnClickListener {
+            // Abrir a página de autores e bibliotecas
+            val intent = Intent(this, AboutActivity::class.java)
+            startActivity(intent)
+        }
+
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -45,6 +54,8 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "Preenche todos os campos", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
+
+
 
             val BASE_URL = "http://192.168.1.211:3000/"
             val retrofit = Retrofit.Builder()
@@ -76,6 +87,7 @@ class MainActivity : AppCompatActivity() {
                         Toast.makeText(this@MainActivity, "Utilizador ou Password incorretos", Toast.LENGTH_SHORT).show()
                     }
                 }
+
 
                 override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
                     Toast.makeText(this@MainActivity, "Erro de rede: ${t.message}", Toast.LENGTH_LONG).show()

@@ -51,6 +51,7 @@
         <activity android:name=".CommentsActivity"/>
         <activity android:name=".PostDetailActivity"/>
         <activity android:name=".SearchActivity"/>
+        <activity android:name=".AboutActivity"/>
 
 
         <meta-data

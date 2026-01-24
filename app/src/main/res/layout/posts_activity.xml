@@ -1,6 +1,0 @@
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/root_posts" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/stone_gray">
-    <!--  Toolbar com cor personalizada  -->
-    <androidx.appcompat.widget.Toolbar android:id="@+id/toolbar" android:layout_width="match_parent" android:layout_height="?attr/actionBarSize" android:background="@color/forest_green" android:title="Feed" android:titleTextColor="@color/white" app:titleTextAppearance="@style/TextAppearance.AppCompat.Title"/>
-    <!--  RecyclerView ocupa o resto (under the toolbar)  -->
-    <androidx.recyclerview.widget.RecyclerView android:id="@+id/recycler_posts" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_marginTop="?attr/actionBarSize" android:clipToPadding="false" android:paddingBottom="16dp" android:scrollbars="vertical"/>
-</androidx.coordinatorlayout.widget.CoordinatorLayout>

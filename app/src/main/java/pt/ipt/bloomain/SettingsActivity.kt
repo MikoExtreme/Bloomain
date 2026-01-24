@@ -87,27 +87,28 @@ class SettingsActivity : AppCompatActivity() {
             builder.setMessage("Tens a certeza que queres eliminar a tua conta? Todos os teus posts e comentários serão apagados permanentemente.")
 
             // Botão Positivo (Apagar)
+            // Botão Positivo (Apagar)
             builder.setPositiveButton("Sim, Eliminar") { _, _ ->
                 val userId = intent.getStringExtra("USER_ID") ?: ""
 
-                // Chamada à API apenas se o utilizador confirmar
-                apiService.deleteAccount(userId).enqueue(object : Callback<PostResponse> {
+                // Criar o mapa com o ID de segurança exigido pelo servidor
+                val securityBody = mapOf("loggedInUserId" to userId)
+
+                // Nota: Alterado para passar o securityBody
+                apiService.deleteAccount(userId, securityBody).enqueue(object : Callback<PostResponse> {
                     override fun onResponse(call: Call<PostResponse>, response: Response<PostResponse>) {
                         if (response.isSuccessful) {
                             Toast.makeText(this@SettingsActivity, "Conta eliminada com sucesso", Toast.LENGTH_LONG).show()
-
-                            // Limpa o histórico e volta para o ecrã de Login (MainActivity)
                             val intent = Intent(this@SettingsActivity, MainActivity::class.java)
                             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                             startActivity(intent)
                             finish()
                         } else {
-                            Toast.makeText(this@SettingsActivity, "Erro ao eliminar conta", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this@SettingsActivity, "Erro: Ação não autorizada", Toast.LENGTH_SHORT).show()
                         }
                     }
-
                     override fun onFailure(call: Call<PostResponse>, t: Throwable) {
-                        Toast.makeText(this@SettingsActivity, "Falha na ligação ao servidor", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@SettingsActivity, "Falha na ligação", Toast.LENGTH_SHORT).show()
                     }
                 })
             }
@@ -122,32 +123,24 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun updateProfileImage(base64: String) {
-        // Pega o ID do utilizador (podes passar via Intent ou usar SharedPreferences)
-        // Por agora, vamos assumir que o ID vem da Intent que abriu as definições
         val userId = intent.getStringExtra("USER_ID") ?: ""
 
-        if (userId.isEmpty()) {
-            Toast.makeText(this, "Erro: ID do utilizador não encontrado", Toast.LENGTH_SHORT).show()
-            return
-        }
+        // Mapa com os dados da imagem e o ID de segurança
+        val updateData = mapOf(
+            "profileImage" to base64,
+            "loggedInUserId" to userId
+        )
 
-        // Criar o Retrofit exatamente como fizeste no Registo
-
-
-        // Criamos um mapa com o campo que queremos mudar
-        val updateData = mapOf("profileImage" to base64)
-
-        // Nota: Precisas de ter a função 'updateUser' no teu ApiService.kt
-        apiService.updateUser(userId, updateData).enqueue(object : Callback<User> {
-            override fun onResponse(call: Call<User>, response: Response<User>) {
+        // Trocado Callback<User> por Callback<ProfileData>
+        apiService.updateUser(userId, updateData).enqueue(object : Callback<ProfileData> {
+            override fun onResponse(call: Call<ProfileData>, response: Response<ProfileData>) {
                 if (response.isSuccessful) {
                     Toast.makeText(this@SettingsActivity, "✅ Imagem atualizada!", Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(this@SettingsActivity, "❌ Erro ao atualizar", Toast.LENGTH_SHORT).show()
                 }
             }
-
-            override fun onFailure(call: Call<User>, t: Throwable) {
+            override fun onFailure(call: Call<ProfileData>, t: Throwable) {
                 Toast.makeText(this@SettingsActivity, "🌐 Erro de ligação", Toast.LENGTH_SHORT).show()
             }
         })

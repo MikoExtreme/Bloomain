@@ -141,11 +141,17 @@ class PostsAdapter(
                 builder.setMessage("Tens a certeza que queres eliminar este post?")
 
                 builder.setPositiveButton("Eliminar") { _, _ ->
-                    apiService.deletePost(post._id).enqueue(object : Callback<PostResponse> {
+                    // Criar o mapa de segurança para o servidor
+                    val securityBody = mapOf("loggedInUserId" to currentUserId)
+
+                    // Agora passamos os DOIS parâmetros: post._id e o securityBody
+                    apiService.deletePost(post._id, securityBody).enqueue(object : Callback<PostResponse> {
                         override fun onResponse(call: Call<PostResponse>, response: Response<PostResponse>) {
                             if (response.isSuccessful) {
                                 Toast.makeText(holder.itemView.context, "Post removido", Toast.LENGTH_SHORT).show()
                                 onDelete(post._id)
+                            } else {
+                                Toast.makeText(holder.itemView.context, "Não autorizado", Toast.LENGTH_SHORT).show()
                             }
                         }
                         override fun onFailure(call: Call<PostResponse>, t: Throwable) {

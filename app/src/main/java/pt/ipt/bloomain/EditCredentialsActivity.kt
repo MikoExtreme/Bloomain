@@ -56,11 +56,11 @@ class EditCredentialsActivity : AppCompatActivity() {
             }
 
             // 3. SÓ AGORA é que enviamos para o servidor, porque passou todos os testes
-            updateUserInServer(userId, newUsername, newPassword, newBio)
+            updateUser(userId, newUsername, newPassword, newBio)
         }
     }
 
-    private fun updateUserInServer(id: String, username: String, password: String, bio: String) {
+    private fun updateUser(id: String, username: String, password: String, bio: String) {
         val retrofit = Retrofit.Builder()
             .baseUrl("http://192.168.1.211:3000/")
             .addConverterFactory(GsonConverterFactory.create())
@@ -70,22 +70,32 @@ class EditCredentialsActivity : AppCompatActivity() {
 
         // Criamos o mapa dinâmico para enviar apenas o que foi alterado
         val updateData = mutableMapOf<String, String>()
+
+        // IMPORTANTE: Adicionar o ID de quem está logado para passar na segurança do servidor
+        updateData["loggedInUserId"] = id
+
         if (username.isNotEmpty()) updateData["username"] = username
         if (password.isNotEmpty()) updateData["password"] = password
         if (bio.isNotEmpty()) updateData["bio"] = bio
 
-        apiService.updateUser(id, updateData).enqueue(object : Callback<User> {
-            override fun onResponse(call: Call<User>, response: Response<User>) {
+        // Trocamos <User> por <ProfileData> para resolver o erro vermelho
+        apiService.updateUser(id, updateData).enqueue(object : Callback<ProfileData> {
+            override fun onResponse(call: Call<ProfileData>, response: Response<ProfileData>) {
                 if (response.isSuccessful) {
                     Toast.makeText(this@EditCredentialsActivity, "✅ Alterado com sucesso!", Toast.LENGTH_SHORT).show()
-                    finish() // Fecha e volta às definições
+                    finish()
                 } else {
-                    Toast.makeText(this@EditCredentialsActivity, "❌ Erro ao atualizar", Toast.LENGTH_SHORT).show()
+                    // Tenta ler a mensagem de erro do servidor (ex: "Username já em uso")
+                    val errorMsg = try {
+                        org.json.JSONObject(response.errorBody()?.string()).getString("message")
+                    } catch (e: Exception) { "Erro ao atualizar" }
+
+                    Toast.makeText(this@EditCredentialsActivity, "❌ $errorMsg", Toast.LENGTH_SHORT).show()
                 }
             }
 
-            override fun onFailure(call: Call<User>, t: Throwable) {
-                Toast.makeText(this@EditCredentialsActivity, "🌐 Falha na ligação", Toast.LENGTH_SHORT).show()
+            override fun onFailure(call: Call<ProfileData>, t: Throwable) {
+                Toast.makeText(this@EditCredentialsActivity, "🌐 Falha na ligação ao servidor", Toast.LENGTH_SHORT).show()
             }
         })
     }
