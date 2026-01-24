@@ -22,7 +22,7 @@ class EditCredentialsActivity : AppCompatActivity() {
      *  - Impede o envio se todos os campos estiverem vazios.
      *  - Valida a coincidência entre a nova palavra-passe e a confirmação.
      *  - Verifica se a nova palavra-passe cumpre o requisito mínimo de 6 caracteres.
-     *  4. Dispara a atualização no servidor via [updateUserInServer] apenas se os dados forem válidos.
+     *  4. Dispara a atualização no servidor via [updateUser] apenas se os dados forem válidos.
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,7 +66,7 @@ class EditCredentialsActivity : AppCompatActivity() {
             }
 
 
-            updateUserInServer(userId, newUsername, newPassword, newBio)
+            updateUser(userId, newUsername, newPassword, newBio)
         }
     }
     /**
@@ -79,7 +79,7 @@ class EditCredentialsActivity : AppCompatActivity() {
      * 4. Em caso de sucesso, exibe uma confirmação e encerra a Activity com [finish].
      * 5. Em caso de falha ou erro de resposta, notifica o utilizador via Toast.
      */
-    private fun updateUserInServer(id: String, username: String, password: String, bio: String) {
+    private fun updateUser(id: String, username: String, password: String, bio: String) {
         val retrofit = Retrofit.Builder()
             .baseUrl("http://192.168.1.211:3000/")
             .addConverterFactory(GsonConverterFactory.create())
@@ -87,14 +87,16 @@ class EditCredentialsActivity : AppCompatActivity() {
 
         val apiService = retrofit.create(ApiService::class.java)
 
-
         val updateData = mutableMapOf<String, String>()
+
+        updateData["loggedInUserId"] = id
+
         if (username.isNotEmpty()) updateData["username"] = username
         if (password.isNotEmpty()) updateData["password"] = password
         if (bio.isNotEmpty()) updateData["bio"] = bio
 
-        apiService.updateUser(id, updateData).enqueue(object : Callback<User> {
-            override fun onResponse(call: Call<User>, response: Response<User>) {
+        apiService.updateUser(id, updateData).enqueue(object : Callback<ProfileData> {
+            override fun onResponse(call: Call<ProfileData>, response: Response<ProfileData>) {
                 if (response.isSuccessful) {
                     Toast.makeText(this@EditCredentialsActivity, "Alterado com sucesso!", Toast.LENGTH_SHORT).show()
                     finish()
@@ -103,7 +105,7 @@ class EditCredentialsActivity : AppCompatActivity() {
                 }
             }
 
-            override fun onFailure(call: Call<User>, t: Throwable) {
+            override fun onFailure(call: Call<ProfileData>, t: Throwable) {
                 Toast.makeText(this@EditCredentialsActivity, "Falha na ligação", Toast.LENGTH_SHORT).show()
             }
         })

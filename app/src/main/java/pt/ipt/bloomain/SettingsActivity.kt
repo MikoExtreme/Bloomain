@@ -85,7 +85,9 @@ class SettingsActivity : AppCompatActivity() {
             builder.setPositiveButton("Sim, Eliminar") { _, _ ->
                 val userId = intent.getStringExtra("USER_ID") ?: ""
 
-                apiService.deleteAccount(userId).enqueue(object : Callback<PostResponse> {
+                val securityBody = mapOf("loggedInUserId" to userId)
+
+                apiService.deleteAccount(userId, securityBody).enqueue(object : Callback<PostResponse> {
                     override fun onResponse(call: Call<PostResponse>, response: Response<PostResponse>) {
                         if (response.isSuccessful) {
                             Toast.makeText(this@SettingsActivity, "Conta eliminada com sucesso", Toast.LENGTH_LONG).show()
@@ -118,25 +120,21 @@ class SettingsActivity : AppCompatActivity() {
     private fun updateProfileImage(base64: String) {
         val userId = intent.getStringExtra("USER_ID") ?: ""
 
-        if (userId.isEmpty()) {
-            Toast.makeText(this, "Erro: ID do utilizador não encontrado", Toast.LENGTH_SHORT).show()
-            return
-        }
+        val updateData = mapOf(
+            "profileImage" to base64,
+            "loggedInUserId" to userId
+        )
 
-
-        val updateData = mapOf("profileImage" to base64)
-
-        apiService.updateUser(userId, updateData).enqueue(object : Callback<User> {
-            override fun onResponse(call: Call<User>, response: Response<User>) {
+        apiService.updateUser(userId, updateData).enqueue(object : Callback<ProfileData> {
+            override fun onResponse(call: Call<ProfileData>, response: Response<ProfileData>) {
                 if (response.isSuccessful) {
-                    Toast.makeText(this@SettingsActivity, "✅ Imagem atualizada!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@SettingsActivity, "Imagem atualizada!", Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(this@SettingsActivity, "❌ Erro ao atualizar", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@SettingsActivity, "Erro ao atualizar", Toast.LENGTH_SHORT).show()
                 }
             }
-
-            override fun onFailure(call: Call<User>, t: Throwable) {
-                Toast.makeText(this@SettingsActivity, "🌐 Erro de ligação", Toast.LENGTH_SHORT).show()
+            override fun onFailure(call: Call<ProfileData>, t: Throwable) {
+                Toast.makeText(this@SettingsActivity, "Erro de ligação", Toast.LENGTH_SHORT).show()
             }
         })
     }
