@@ -4,6 +4,7 @@ import android.graphics.Rect
 import android.net.Uri
 import android.os.Bundle
 import android.util.Base64
+import android.util.Patterns
 import android.view.MotionEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -13,6 +14,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -46,39 +48,55 @@ class RegisterActivity : AppCompatActivity() {
         btnRegister = findViewById(R.id.registerButton)
         val profileCard = findViewById<View>(R.id.profileCard)
 
+        val etUsername = findViewById<EditText>(R.id.nameEditText)
+        val etEmail = findViewById<EditText>(R.id.emailEditText)
+        val etPassword = findViewById<EditText>(R.id.passwordEditText)
+        val etPasswordConfirm = findViewById<EditText>(R.id.passwordConfirmationEditText)
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.register)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
 
-        // Clicar no círculo da imagem abre a galeria
         profileCard.setOnClickListener {
             pickImageLauncher.launch("image/*")
         }
 
         btnRegister.setOnClickListener {
-            val username = findViewById<EditText>(R.id.nameEditText).text.toString()
-            val email = findViewById<EditText>(R.id.emailEditText).text.toString()
-            val password = findViewById<EditText>(R.id.passwordEditText).text.toString()
-            val passwordConfirm = findViewById<EditText>(R.id.passwordConfirmationEditText).text.toString()
+            val username = etUsername.text.toString().trim()
+            val email = etEmail.text.toString().trim()
+            val password = etPassword.text.toString()
+            val passwordConfirm = etPasswordConfirm.text.toString()
+            val passwordPattern = "^(?=.*[0-9])(?=.*[A-Z])(?=.*[@#$%^&+=!])(?=\\S+$).{8,}$".toRegex()
 
-            // Validações
-            if (username.isEmpty() || email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "⚠️ Preencha todos os campos obrigatórios", Toast.LENGTH_SHORT).show()
+            // 1. Validações Locais (Frontend)
+            if (username.length < 3) {
+                etUsername.error = "O nome deve ter pelo menos 3 caracteres"
+                return@setOnClickListener
+            }
+
+            // Uso do Patterns.EMAIL_ADDRESS que encontraste na documentação
+            if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                etEmail.error = "Insira um e-mail válido"
+                return@setOnClickListener
+            }
+
+            // Validação de força da password (ex: mínimo 8 caracteres)
+            if (!password.matches(passwordPattern)) {
+                etPassword.error = "A password deve ter 8 carateres, incluir uma maiúscula, um número e um símbolo (@#$%^&+=!)"
                 return@setOnClickListener
             }
 
             if (password != passwordConfirm) {
-                Toast.makeText(this, "❌ As passwords não coincidem", Toast.LENGTH_SHORT).show()
+                etPasswordConfirm.error = "As passwords não coincidem"
                 return@setOnClickListener
             }
 
-            // Iniciar carregamento
             setLoading(true)
 
             val apiService = Retrofit.Builder()
-                .baseUrl("http://192.168.1.211:3000/") // Garante que o IP está correto
+                .baseUrl("http://192.168.1.211:3000/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
                 .create(ApiService::class.java)
@@ -90,9 +108,16 @@ class RegisterActivity : AppCompatActivity() {
                     setLoading(false)
                     if (response.isSuccessful) {
                         Toast.makeText(this@RegisterActivity, "✅ Conta criada com sucesso!", Toast.LENGTH_LONG).show()
-                        finish() // Volta para o login
+                        finish()
                     } else {
-                        Toast.makeText(this@RegisterActivity, "❌ Erro: Utilizador ou email já existem", Toast.LENGTH_LONG).show()
+                        // 2. Lógica para ler a mensagem de erro vinda do Servidor (ex: "Email já está em uso")
+                        val errorBody = response.errorBody()?.string()
+                        val message = try {
+                            JSONObject(errorBody).getString("message")
+                        } catch (e: Exception) {
+                            "Erro ao registar. Verifique os dados."
+                        }
+                        Toast.makeText(this@RegisterActivity, "❌ $message", Toast.LENGTH_LONG).show()
                     }
                 }
 
@@ -104,7 +129,6 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
-    // Função para mostrar/esconder o carregamento
     private fun setLoading(isLoading: Boolean) {
         progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         btnRegister.isEnabled = !isLoading
