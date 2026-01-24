@@ -4,7 +4,14 @@
     <string name="register">Criar conta</string>
     <string name="registerhint">Ainda não tem conta?</string>
     <string name="welcome">Bem-vindo!</string>
-    <string name="profileEmail">Email do Utilizador:</string>
+    <string name="profileEmail">Bio</string>
     <string name="editprofile">Editar Perfil</string>
     <string name="profileUsername">Nome Do Utilizador</string>
+    <string name="back">Voltar</string>
+    <string name="like">Gosto</string>
+    <string name="comment">Comentários</string>
+    <string name="send">Partilha</string>
+    <string name="avatar">Utilizador</string>
+    <string name="menu">Menu</string>
+    <string name="post_image">Imagem\n</string>
 </resources>

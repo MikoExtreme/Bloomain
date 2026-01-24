@@ -1,86 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/root_settings"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal"
-    tools:context=".ui.settings.SettingsActivity">
+    android:background="@color/light_earth_brown">
 
-    <!-- SIDEBAR (lista de secções) -->
     <LinearLayout
-        android:id="@+id/settings_sidebar"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="0.3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp"
-        android:background="?attr/colorSurfaceVariant">
+        android:padding="16dp">
 
-        <!-- Título -->
+        <ImageButton
+            android:id="@+id/go_back"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_revert" />
+
         <TextView
-            android:id="@+id/tv_settings_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Definições"
-            android:textAppearance="?attr/textAppearanceTitleLarge"
-            android:textStyle="bold" />
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="24dp" />
 
-        <!-- Espaço -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="24dp" />
-
-        <!-- Botões / Itens de secção (podes trocar por RecyclerView) -->
-        <TextView
-            android:id="@+id/item_section_account"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
+        <Button
+            android:id="@+id/btnEditProfile"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingVertical="8dp"
-            android:text="Conta" />
+            android:text="Editar Perfil"
+            android:textAllCaps="false" />
 
-        <TextView
-            android:id="@+id/item_section_notifications"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
+
+
+
+
+        <Button
+            android:id="@+id/item_section_image"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingVertical="8dp"
-            android:text="Notificações" />
+            android:text="Alterar Foto de Perfil"
+            android:textAllCaps="false" />
 
-        <TextView
-            android:id="@+id/item_section_appearance"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="40dp" />
+
+        <Button
+            android:id="@+id/log_out"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingVertical="8dp"
-            android:text="Aparência" />
+            android:text="Sair da Conta"
+            android:textColor="#FF0000"
+            android:backgroundTint="#FFEBEB" />
 
-        <TextView
-            android:id="@+id/item_section_security"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
+        <Button
+            android:id="@+id/btnDeleteAccount"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingVertical="8dp"
-            android:text="Segurança &amp; Privacidade" />
-
-        <TextView
-            android:id="@+id/item_section_language"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingVertical="8dp"
-            android:text="Idioma &amp; Região" />
-
-        <TextView
-            android:id="@+id/item_section_about"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingVertical="8dp"
-            android:text="Sobre" />
+            android:text="Eliminar Conta"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#D32F2F"
+            android:layout_marginTop="16dp" />
 
     </LinearLayout>
-
-</LinearLayout>
+</ScrollView>

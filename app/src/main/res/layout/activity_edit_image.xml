@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:background="@color/light_earth_brown"
+    android:gravity="center_horizontal"
+    android:padding="24dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Foto de Perfil"
+        android:textColor="#333333"
+        android:textSize="22sp"
+        android:textStyle="bold" />
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/previewImageView"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_marginTop="20dp"
+        android:padding="4dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/flower_placeholder"
+        app:strokeWidth="2dp"
+        app:strokeColor="@color/black"
+        app:shapeAppearanceOverlay="@style/CircleImage" />
+    <Button
+    android:id="@+id/btnSelectNew"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="Escolher da Galeria"
+    android:layout_marginTop="20dp"
+    style="@style/Widget.AppCompat.Button.Colored"/>
+
+    <Button
+        android:id="@+id/btnSave"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Guardar Alterações"
+        android:enabled="false"
+        android:layout_marginTop="10dp"/>
+
+    <Button
+        android:id="@+id/btnCancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cancelar"
+        android:backgroundTint="#FF5555"
+        android:layout_marginTop="20dp"
+        style="@style/Widget.AppCompat.Button.Borderless"/>
+
+</LinearLayout>

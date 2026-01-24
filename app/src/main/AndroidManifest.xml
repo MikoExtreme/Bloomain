@@ -2,6 +2,20 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET" /> <!-- Adicionado-->
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <uses-feature android:name="android.hardware.camera.any" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -11,18 +25,39 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Bloomain"
-        android:usesCleartextTraffic="true" > <!-- Adicionado-->
+        android:usesCleartextTraffic="true" >
+
+
+
+
         <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity android:name=".RegisterActivity" />
         <activity android:name=".ProfileActivity" />
+        <activity android:name=".SettingsActivity" />
+        <activity android:name=".PostMakerActivity" />
+        <activity android:name=".FeedActivity" />
+        <activity android:name=".EditImageActivity"/>
+        <activity android:name=".EditCredentialsActivity"/>
+        <activity android:name=".CreatePostActivity"/>
+        <activity android:name=".SelectLocationActivity"/>
+        <activity android:name=".CommentsActivity"/>
+        <activity android:name=".PostDetailActivity"/>
+        <activity android:name=".SearchActivity"/>
+
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${MAPS_API_KEY}" />
+
     </application>
+
 
 </manifest>

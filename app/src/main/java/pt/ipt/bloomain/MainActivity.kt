@@ -62,7 +62,7 @@ class MainActivity : AppCompatActivity() {
                 override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
                     if (response.isSuccessful) {
                         // 1. Criar a Intent para o Perfil
-                        val intent = Intent(this@MainActivity, ProfileActivity::class.java)
+                        val intent = Intent(this@MainActivity, FeedActivity::class.java)
 
                         // 2. EXTRAIR o userId do servidor e colocá-lo na Intent
                         // O userId vem do objeto LoginResponse definido no teu ApiService.kt
