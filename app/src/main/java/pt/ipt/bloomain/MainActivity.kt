@@ -12,11 +12,11 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import pt.ipt.bloomain.retrofitpackage.RetrofitClient
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+
 
 class MainActivity : AppCompatActivity() {
     /**
@@ -60,39 +60,30 @@ class MainActivity : AppCompatActivity() {
 
 
 
-            val BASE_URL = "http://192.168.1.211:3000/"
-            val retrofit = Retrofit.Builder()
-                .baseUrl(BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
 
-            val apiService = retrofit.create(ApiService::class.java)
 
 
             val loginRequest = LoginRequest(username, password)
 
 
-            apiService.login(loginRequest).enqueue(object : Callback<LoginResponse> {
+            RetrofitClient.instance.login(loginRequest).enqueue(object : Callback<LoginResponse> {
                 override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
                     if (response.isSuccessful) {
+                        val userId = response.body()?.userId
 
                         val intent = Intent(this@MainActivity, FeedActivity::class.java)
-
-
-                        val userId = response.body()?.userId
                         intent.putExtra("USER_ID", userId)
-
-
                         startActivity(intent)
-                        finish()
+                        finish() // Impede o utilizador de voltar ao login com o botão "Back"
                     } else {
-                        Toast.makeText(this@MainActivity, "Utilizador ou Password incorretos", Toast.LENGTH_SHORT).show()
+                        // Requisito 57: Mensagem de erro adequada
+                        Toast.makeText(this@MainActivity, "Credenciais inválidas. Tente novamente.", Toast.LENGTH_SHORT).show()
                     }
                 }
 
-
                 override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
-                    Toast.makeText(this@MainActivity, "Erro de rede: ${t.message}", Toast.LENGTH_LONG).show()
+                    // Requisito 57: Notificar se o servidor local não estiver ligado
+                    Toast.makeText(this@MainActivity, "Erro de ligação: Servidor local inacessível", Toast.LENGTH_LONG).show()
                 }
             })
         }

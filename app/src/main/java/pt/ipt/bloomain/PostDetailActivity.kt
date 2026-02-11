@@ -6,24 +6,18 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import pt.ipt.bloomain.adapters.PostsAdapter
+import pt.ipt.bloomain.retrofitpackage.RetrofitClient
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+
 
 class PostDetailActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var currentUserId: String
 
-    private val apiService by lazy {
-        Retrofit.Builder()
-            .baseUrl("http://192.168.1.211:3000/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(ApiService::class.java)
-    }
+
 
     /**
      * Inicializa a Activity de detalhes de uma publicação específica.
@@ -45,39 +39,52 @@ class PostDetailActivity : AppCompatActivity() {
      * Procura os detalhes de uma publicação específica no servidor e atualiza a interface.
      */
     private fun loadSinglePost(postId: String) {
-        apiService.getPostById(postId).enqueue(object : Callback<PostItemResponse> {
+        RetrofitClient.instance.getPostById(postId).enqueue(object : Callback<PostItemResponse> {
             override fun onResponse(call: Call<PostItemResponse>, response: Response<PostItemResponse>) {
                 if (response.isSuccessful) {
                     val post = response.body()
                     if (post != null) {
-
+                        // Reutilizamos o PostsAdapter para manter a consistência visual
                         recyclerView.adapter = PostsAdapter(
                             items = listOf(post),
                             currentUserId = currentUserId,
-                            apiService = apiService,
+                            apiService = RetrofitClient.instance,
                             onLike = { clickedPost -> toggleLike(clickedPost._id) },
-                            onDelete = { finish() }
+                            onDelete = {
+                                Toast.makeText(this@PostDetailActivity, "Post removido", Toast.LENGTH_SHORT).show()
+                                finish()
+                            }
                         )
                     }
+                } else {
+                    Toast.makeText(this@PostDetailActivity, "Erro ao carregar detalhes", Toast.LENGTH_SHORT).show()
                 }
             }
+
             override fun onFailure(call: Call<PostItemResponse>, t: Throwable) {
-                Toast.makeText(this@PostDetailActivity, "Erro ao carregar post", Toast.LENGTH_SHORT).show()
+                // Requisito 57: Mensagem de erro adequada para falha de rede
+                Toast.makeText(this@PostDetailActivity, "Sem ligação ao servidor local", Toast.LENGTH_SHORT).show()
             }
         })
     }
 /**
  * Alterna o estado de 'Like' de uma publicação para o utilizador atual.
  */
-    private fun toggleLike(postId: String) {
-        val body = mapOf("userId" to currentUserId)
-        apiService.toggleLike(postId, body).enqueue(object : Callback<PostResponse> {
-            override fun onResponse(call: Call<PostResponse>, response: Response<PostResponse>) {
-                if (response.isSuccessful) {
-                    loadSinglePost(postId) // Atualiza a estrela
-                }
+private fun toggleLike(postId: String) {
+    val request = LikeRequest(userId = currentUserId)
+
+    RetrofitClient.instance.toggleLike(postId, request).enqueue(object : Callback<PostResponse> {
+        override fun onResponse(call: Call<PostResponse>, response: Response<PostResponse>) {
+            if (response.isSuccessful) {
+                loadSinglePost(postId)
+            } else {
+                Toast.makeText(this@PostDetailActivity, "Não foi possível processar o Like", Toast.LENGTH_SHORT).show()
             }
-            override fun onFailure(call: Call<PostResponse>, t: Throwable) {}
-        })
-    }
+        }
+
+        override fun onFailure(call: Call<PostResponse>, t: Throwable) {
+            Toast.makeText(this@PostDetailActivity, "Erro de rede ao dar Like", Toast.LENGTH_SHORT).show()
+        }
+    })
+}
 }

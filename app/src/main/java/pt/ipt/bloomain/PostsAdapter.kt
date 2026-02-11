@@ -14,6 +14,7 @@ import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import pt.ipt.bloomain.ApiService
 import pt.ipt.bloomain.CommentsActivity
+import pt.ipt.bloomain.DeleteRequest
 import pt.ipt.bloomain.R
 import pt.ipt.bloomain.PostItemResponse
 import pt.ipt.bloomain.PostResponse
@@ -30,7 +31,6 @@ class PostsAdapter(
     private val onDelete: (String) -> Unit
 ) : RecyclerView.Adapter<PostsAdapter.PostViewHolder>() {
 
-    // 1. ViewHolder com todos os elementos mapeados
     inner class PostViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val ivAvatar: ImageView = view.findViewById(R.id.iv_avatar)
         val tvUsername: TextView = view.findViewById(R.id.tv_username)
@@ -141,21 +141,22 @@ class PostsAdapter(
                 builder.setMessage("Tens a certeza que queres eliminar este post?")
 
                 builder.setPositiveButton("Eliminar") { _, _ ->
-                    // Criar o mapa de segurança para o servidor
-                    val securityBody = mapOf("loggedInUserId" to currentUserId)
 
-                    // Agora passamos os DOIS parâmetros: post._id e o securityBody
-                    apiService.deletePost(post._id, securityBody).enqueue(object : Callback<PostResponse> {
+                    val deleteRequest = DeleteRequest(loggedInUserId = currentUserId)
+
+                    apiService.deletePost(post._id, deleteRequest).enqueue(object : Callback<PostResponse> {
                         override fun onResponse(call: Call<PostResponse>, response: Response<PostResponse>) {
                             if (response.isSuccessful) {
-                                Toast.makeText(holder.itemView.context, "Post removido", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(holder.itemView.context, "Post removido com sucesso", Toast.LENGTH_SHORT).show()
                                 onDelete(post._id)
                             } else {
-                                Toast.makeText(holder.itemView.context, "Não autorizado", Toast.LENGTH_SHORT).show()
+                                // Requisito 57: Mensagem de erro adequada
+                                val msg = if (response.code() == 403) "Não autorizado!" else "Erro ao apagar"
+                                Toast.makeText(holder.itemView.context, msg, Toast.LENGTH_SHORT).show()
                             }
                         }
                         override fun onFailure(call: Call<PostResponse>, t: Throwable) {
-                            Toast.makeText(holder.itemView.context, "Erro de rede", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(holder.itemView.context, "Erro de rede: Servidor Offline", Toast.LENGTH_SHORT).show()
                         }
                     })
                 }

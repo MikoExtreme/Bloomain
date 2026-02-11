@@ -8,17 +8,18 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import pt.ipt.bloomain.adapters.CommentsAdapter
+import pt.ipt.bloomain.retrofitpackage.RetrofitClient
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+
 
 class CommentsActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var etComment: EditText
     private lateinit var btnSend: Button
+    private lateinit var balls: Button
 
     private lateinit var postId: String
     private lateinit var userId: String
@@ -63,21 +64,18 @@ class CommentsActivity : AppCompatActivity() {
      * Em caso de erro de rede ou resposta inválida, exibe um Toast ao utilizador.
      */
     private fun loadComments() {
-        val retrofit = Retrofit.Builder()
-            .baseUrl("http://192.168.1.211:3000/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-        val apiService = retrofit.create(ApiService::class.java)
-
-        apiService.getComments(postId).enqueue(object : Callback<List<Comment>> {
+        RetrofitClient.instance.getComments(postId).enqueue(object : Callback<List<Comment>> {
             override fun onResponse(call: Call<List<Comment>>, response: Response<List<Comment>>) {
                 if (response.isSuccessful) {
                     val commentsList = response.body() ?: emptyList()
                     recyclerView.adapter = CommentsAdapter(commentsList)
+                } else {
+                    // Adicionamos validação de erro conforme o ponto 57 do enunciado
+                    Toast.makeText(this@CommentsActivity, "Erro do servidor: ${response.code()}", Toast.LENGTH_SHORT).show()
                 }
             }
             override fun onFailure(call: Call<List<Comment>>, t: Throwable) {
-                Toast.makeText(this@CommentsActivity, "Erro ao carregar", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@CommentsActivity, "Falha de rede: Verifique a ligação", Toast.LENGTH_SHORT).show()
             }
         })
     }
@@ -92,25 +90,22 @@ class CommentsActivity : AppCompatActivity() {
      * @param description O texto do comentário inserido pelo utilizador.
      */
     private fun sendComment(description: String) {
-        val apiService = Retrofit.Builder()
-            .baseUrl("http://192.168.1.211:3000/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(ApiService::class.java)
-
         val request = CommentRequest(creatorId = userId, postId = postId, description = description)
 
-        apiService.addComment(request).enqueue(object : Callback<CommentResponse> {
+        RetrofitClient.instance.addComment(request).enqueue(object : Callback<CommentResponse> {
             override fun onResponse(call: Call<CommentResponse>, response: Response<CommentResponse>) {
                 if (response.isSuccessful) {
                     etComment.text.clear()
                     hideKeyboard()
-                    loadComments() // Recarrega a lista para mostrar o novo comentário
+                    loadComments()
                     Toast.makeText(this@CommentsActivity, "Comentado!", Toast.LENGTH_SHORT).show()
+                } else {
+                    // Mensagens de erro adequadas são obrigatórias
+                    Toast.makeText(this@CommentsActivity, "Erro ao comentar", Toast.LENGTH_SHORT).show()
                 }
             }
             override fun onFailure(call: Call<CommentResponse>, t: Throwable) {
-                Toast.makeText(this@CommentsActivity, "Erro ao enviar", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@CommentsActivity, "Sem ligação ao servidor local", Toast.LENGTH_SHORT).show()
             }
         })
     }

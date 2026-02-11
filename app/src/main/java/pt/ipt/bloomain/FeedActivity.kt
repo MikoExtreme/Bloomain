@@ -13,11 +13,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import pt.ipt.bloomain.adapters.PostsAdapter
+import pt.ipt.bloomain.retrofitpackage.RetrofitClient
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+
 
 class FeedActivity : AppCompatActivity() {
 
@@ -25,13 +25,7 @@ class FeedActivity : AppCompatActivity() {
     private lateinit var userId: String
 
 
-    private val apiService by lazy {
-        Retrofit.Builder()
-            .baseUrl("http://192.168.1.211:3000/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(ApiService::class.java)
-    }
+
     /**
      * Inicializa a Activity principal do Feed.
      */
@@ -58,7 +52,7 @@ class FeedActivity : AppCompatActivity() {
         val ivUserLogged = findViewById<ImageView>(R.id.ivUserLogged)
 
         if (userId.isNotEmpty()) {
-            apiService.getProfile(userId).enqueue(object : Callback<ProfileData> {
+            RetrofitClient.instance.getProfile(userId).enqueue(object : Callback<ProfileData> {
                 override fun onResponse(call: Call<ProfileData>, response: Response<ProfileData>) {
                     if (response.isSuccessful) {
                         val profileImageBase64 = response.body()?.profileImage
@@ -100,25 +94,25 @@ class FeedActivity : AppCompatActivity() {
      * Solicita a lista global de publicações ao servidor e atualiza a interface.
      */
     private fun loadFeed() {
-        apiService.getFeed().enqueue(object : Callback<List<PostItemResponse>> {
+        RetrofitClient.instance.getFeed().enqueue(object : Callback<List<PostItemResponse>> {
             override fun onResponse(call: Call<List<PostItemResponse>>, response: Response<List<PostItemResponse>>) {
                 if (response.isSuccessful) {
                     val allPosts = response.body() ?: emptyList()
 
-                    // ATUALIZAÇÃO AQUI: Passamos apiService e onDelete
                     recyclerView.adapter = PostsAdapter(
                         items = allPosts,
                         currentUserId = userId,
-                        apiService = apiService, // Passa o apiService global da Activity
+                        apiService = RetrofitClient.instance, // Passa a instância única
                         onLike = { post -> likePost(post._id) },
-                        onDelete = { postId -> loadFeed() } // Recarrega o feed após apagar
+                        onDelete = { loadFeed() } // Recarrega o feed após apagar (Persistência)
                     )
                 } else {
-                    Toast.makeText(this@FeedActivity, "Erro no Servidor: ${response.code()}", Toast.LENGTH_LONG).show()
+                    // Requisito 57: Mensagem de erro adequada
+                    Toast.makeText(this@FeedActivity, "Erro ao carregar posts: ${response.code()}", Toast.LENGTH_LONG).show()
                 }
             }
             override fun onFailure(call: Call<List<PostItemResponse>>, t: Throwable) {
-                Toast.makeText(this@FeedActivity, "Erro ao carregar feed", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@FeedActivity, "Servidor Offline ou Erro de Rede", Toast.LENGTH_SHORT).show()
             }
         })
     }
@@ -127,17 +121,19 @@ class FeedActivity : AppCompatActivity() {
      * Like num Post
      */
     private fun likePost(postId: String) {
-        val body = mapOf("userId" to userId)
-        apiService.toggleLike(postId, body).enqueue(object : Callback<PostResponse> {
+        val request = LikeRequest(userId = userId)
+
+        RetrofitClient.instance.toggleLike(postId, request).enqueue(object : Callback<PostResponse> {
             override fun onResponse(call: Call<PostResponse>, response: Response<PostResponse>) {
                 if (response.isSuccessful) {
                     loadFeed()
                 } else {
-                    Toast.makeText(this@FeedActivity, "Erro ao dar like", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@FeedActivity, "Erro ao processar like", Toast.LENGTH_SHORT).show()
                 }
             }
             override fun onFailure(call: Call<PostResponse>, t: Throwable) {
                 Log.e("FEED_DEBUG", "Falha na rede: ${t.message}")
+                Toast.makeText(this@FeedActivity, "Sem ligação ao servidor", Toast.LENGTH_SHORT).show()
             }
         })
     }

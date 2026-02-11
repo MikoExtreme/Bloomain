@@ -7,11 +7,11 @@ import android.view.View
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import pt.ipt.bloomain.retrofitpackage.RetrofitClient
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+
 
 class PostMakerActivity : AppCompatActivity() {
 
@@ -58,11 +58,7 @@ class PostMakerActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            val apiService = Retrofit.Builder()
-                .baseUrl("http://192.168.1.211:3000/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
-                .create(ApiService::class.java)
+
 
 
             val request = PostRequest(
@@ -75,17 +71,22 @@ class PostMakerActivity : AppCompatActivity() {
 
             btnPublish.isEnabled = false
 
-            apiService.createPost(request).enqueue(object : Callback<PostResponse> {
+            RetrofitClient.instance.createPost(request).enqueue(object : Callback<PostResponse> {
                 override fun onResponse(call: Call<PostResponse>, response: Response<PostResponse>) {
                     if (response.isSuccessful) {
-                        Toast.makeText(this@PostMakerActivity, "Publicado!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@PostMakerActivity, "Publicado com sucesso!", Toast.LENGTH_SHORT).show()
                         finish()
+                    } else {
+                        btnPublish.isEnabled = true
+                        // Requisito 57: Mensagem de erro adequada
+                        Toast.makeText(this@PostMakerActivity, "Erro no servidor: ${response.code()}", Toast.LENGTH_SHORT).show()
                     }
                 }
 
                 override fun onFailure(call: Call<PostResponse>, t: Throwable) {
                     btnPublish.isEnabled = true
-                    Toast.makeText(this@PostMakerActivity, "Erro: ${t.message}", Toast.LENGTH_SHORT).show()
+                    // Requisito 57: Feedback claro para erro de rede ou servidor desligado
+                    Toast.makeText(this@PostMakerActivity, "Falha na ligação ao servidor local", Toast.LENGTH_SHORT).show()
                 }
             })
         }

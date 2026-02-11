@@ -4,15 +4,16 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import pt.ipt.bloomain.UserSearchAdapter // Vamos criar este a seguir
+import pt.ipt.bloomain.retrofitpackage.RetrofitClient
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+
 
 class SearchActivity : AppCompatActivity() {
 
@@ -20,13 +21,7 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var etSearchQuery: EditText
     private lateinit var currentUserId: String
 
-    private val apiService by lazy {
-        Retrofit.Builder()
-            .baseUrl("http://192.168.1.211:3000/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(ApiService::class.java)
-    }
+
 
     /**
      * Gere a funcionalidade de pesquisa de utilizadores em tempo real.
@@ -59,14 +54,21 @@ class SearchActivity : AppCompatActivity() {
      * Executa a chamada à API para filtrar utilizadores com base numa string de consulta.
      */
     private fun performSearch(query: String) {
-        apiService.searchUsers(query).enqueue(object : Callback<List<ProfileData>> {
+        RetrofitClient.instance.searchUsers(query).enqueue(object : Callback<List<ProfileData>> {
             override fun onResponse(call: Call<List<ProfileData>>, response: Response<List<ProfileData>>) {
                 if (response.isSuccessful) {
                     val users = response.body() ?: emptyList()
                     recyclerView.adapter = UserSearchAdapter(users, currentUserId)
+                } else {
+                    // Requisito 57: Mensagem de erro adequada
+                    Toast.makeText(this@SearchActivity, "Erro na procura", Toast.LENGTH_SHORT).show()
                 }
             }
-            override fun onFailure(call: Call<List<ProfileData>>, t: Throwable) {}
+
+            override fun onFailure(call: Call<List<ProfileData>>, t: Throwable) {
+                // Requisito 57: Feedback de rede
+                Toast.makeText(this@SearchActivity, "Sem ligação ao servidor local", Toast.LENGTH_SHORT).show()
+            }
         })
     }
 }

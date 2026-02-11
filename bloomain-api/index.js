@@ -17,11 +17,29 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
  * Ligação ao MongoDB Atlas
  */
 const mongoURI = "mongodb+srv://aluno25939_db_user:Dodot123!@damcluster.ty3jnxv.mongodb.net/bloomainDB?appName=DAMCluster";
+const mongoURIBackup = "mongodb://localhost:27017/bloomainDB"
 
-mongoose.connect(mongoURI)
-  .then(() => console.log("Ligado ao MongoDB com sucesso!"))
-  .catch(err => console.error("Erro ao ligar ao MongoDB:", err));
 
+// Função para ligar à base de dados
+async function connectDB() {
+    try {
+        console.log("Tentando ligar ao MongoDB Atlas (Cloud)...");
+        // Tentamos a cloud com um timeout de 5 segundos para não ficar pendurado
+        await mongoose.connect(mongoURI, { serverSelectionTimeoutMS: 5000 });
+        console.log("✅ Ligado ao MongoDB Atlas com sucesso!");
+    } catch (err) {
+        console.error("❌ Falha na Cloud (DNS ou Porta bloqueada).");
+        console.log("🔄 Tentando ligar ao MongoDB LOCAL...");
+        try {
+            await mongoose.connect(mongoURIBackup);
+            console.log("✅ Ligado ao MongoDB LOCAL com sucesso!");
+        } catch (localErr) {
+            console.error("❌ Erro crítico: Nem a Cloud nem o Local estão disponíveis!", localErr);
+        }
+    }
+}
+
+connectDB();
 
 /**
  * Rota de teste

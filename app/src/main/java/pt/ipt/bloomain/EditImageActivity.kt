@@ -9,11 +9,11 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import pt.ipt.bloomain.retrofitpackage.RetrofitClient
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+
 
 class EditImageActivity : AppCompatActivity() {
 
@@ -72,28 +72,28 @@ class EditImageActivity : AppCompatActivity() {
      * Realiza o upload da nova imagem de perfil para o Utilizador
      */
     private fun uploadImage() {
-        val retrofit = Retrofit.Builder()
-            .baseUrl("http://192.168.1.211:3000/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-        val apiService = retrofit.create(ApiService::class.java)
+        if (newBase64.isEmpty()) {
+            Toast.makeText(this, "Selecione uma imagem primeiro", Toast.LENGTH_SHORT).show()
+            return
+        }
 
-        val updateData = mapOf(
-            "profileImage" to newBase64,
-            "loggedInUserId" to userId
+        val imageRequest = ProfileImageRequest(
+            profileImage = newBase64,
+            loggedInUserId = userId
         )
 
-        apiService.updateUser(userId, updateData).enqueue(object : Callback<ProfileData> {
+        RetrofitClient.instance.updateUser(userId, imageRequest).enqueue(object : Callback<ProfileData> {
             override fun onResponse(call: Call<ProfileData>, response: Response<ProfileData>) {
                 if (response.isSuccessful) {
-                    Toast.makeText(this@EditImageActivity, "Foto atualizada!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@EditImageActivity, "Foto de perfil atualizada!", Toast.LENGTH_SHORT).show()
                     finish()
                 } else {
-                    Toast.makeText(this@EditImageActivity, "Não autorizado ou erro", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@EditImageActivity, "Erro: ${response.code()}", Toast.LENGTH_SHORT).show()
                 }
             }
+
             override fun onFailure(call: Call<ProfileData>, t: Throwable) {
-                Toast.makeText(this@EditImageActivity, "Erro de ligação", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@EditImageActivity, "Falha na rede", Toast.LENGTH_SHORT).show()
             }
         })
     }

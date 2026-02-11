@@ -15,11 +15,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import org.json.JSONObject
+import pt.ipt.bloomain.retrofitpackage.RetrofitClient
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+
 
 class RegisterActivity : AppCompatActivity() {
 
@@ -94,34 +94,31 @@ class RegisterActivity : AppCompatActivity() {
 
             setLoading(true)
 
-            val apiService = Retrofit.Builder()
-                .baseUrl("http://192.168.1.211:3000/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
-                .create(ApiService::class.java)
+
 
             val request = RegisterRequest(username, email, password, base64Image)
 
-            apiService.register(request).enqueue(object : Callback<RegisterResponse> {
+            RetrofitClient.instance.register(request).enqueue(object : Callback<RegisterResponse> {
                 override fun onResponse(call: Call<RegisterResponse>, response: Response<RegisterResponse>) {
                     setLoading(false)
                     if (response.isSuccessful) {
                         Toast.makeText(this@RegisterActivity, "Conta criada com sucesso!", Toast.LENGTH_LONG).show()
-                        finish()
+                        finish() // Volta para o Login
                     } else {
+                        // Requisito 57: Mensagens de erro adequadas vindas do backend (ex: Email já existe)
                         val errorBody = response.errorBody()?.string()
                         val message = try {
                             JSONObject(errorBody).getString("message")
                         } catch (e: Exception) {
-                            "Erro ao registar. Verifique os dados."
+                            "Erro no registo: ${response.code()}"
                         }
-                        Toast.makeText(this@RegisterActivity, "$message", Toast.LENGTH_LONG).show()
+                        Toast.makeText(this@RegisterActivity, message, Toast.LENGTH_LONG).show()
                     }
                 }
 
                 override fun onFailure(call: Call<RegisterResponse>, t: Throwable) {
                     setLoading(false)
-                    Toast.makeText(this@RegisterActivity, "🌐 Falha na ligação ao servidor", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@RegisterActivity, "🌐 Sem ligação ao servidor local", Toast.LENGTH_LONG).show()
                 }
             })
         }

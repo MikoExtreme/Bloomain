@@ -10,12 +10,11 @@ import android.widget.ImageButton
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import pt.ipt.bloomain.User // Garante que este é o caminho do teu model User
+import pt.ipt.bloomain.retrofitpackage.RetrofitClient
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -34,11 +33,7 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 
-    val apiService = Retrofit.Builder()
-        .baseUrl("http://192.168.1.211:3000/")
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-        .create(ApiService::class.java)
+
 
     /**
      * Gere as configurações da conta e preferências do utilizador.
@@ -75,6 +70,8 @@ class SettingsActivity : AppCompatActivity() {
             finish()
         }
 
+
+
         val btnDeleteAccount = findViewById<Button>(R.id.btnDeleteAccount)
 
         btnDeleteAccount.setOnClickListener {
@@ -85,30 +82,27 @@ class SettingsActivity : AppCompatActivity() {
             builder.setPositiveButton("Sim, Eliminar") { _, _ ->
                 val userId = intent.getStringExtra("USER_ID") ?: ""
 
-                val securityBody = mapOf("loggedInUserId" to userId)
+                // CORREÇÃO AQUI: Precisas de criar a instância da Data Class antes de a usar
+                val dReq = DeleteRequest(loggedInUserId = userId)
 
-                apiService.deleteAccount(userId, securityBody).enqueue(object : Callback<PostResponse> {
+                // Passamos 'dReq' que acabámos de criar
+                RetrofitClient.instance.deleteAccount(userId, dReq).enqueue(object : Callback<PostResponse> {
                     override fun onResponse(call: Call<PostResponse>, response: Response<PostResponse>) {
                         if (response.isSuccessful) {
-                            Toast.makeText(this@SettingsActivity, "Conta eliminada com sucesso", Toast.LENGTH_LONG).show()
-
+                            Toast.makeText(this@SettingsActivity, "Conta eliminada.", Toast.LENGTH_LONG).show()
                             val intent = Intent(this@SettingsActivity, MainActivity::class.java)
                             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                             startActivity(intent)
-                            finish()
                         } else {
-                            Toast.makeText(this@SettingsActivity, "Erro ao eliminar conta", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this@SettingsActivity, "Não autorizado!", Toast.LENGTH_SHORT).show()
                         }
                     }
-
                     override fun onFailure(call: Call<PostResponse>, t: Throwable) {
-                        Toast.makeText(this@SettingsActivity, "Falha na ligação ao servidor", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@SettingsActivity, "Erro de ligação ao servidor", Toast.LENGTH_SHORT).show()
                     }
                 })
             }
-
             builder.setNegativeButton("Cancelar", null)
-
             builder.show()
         }
 
@@ -120,42 +114,25 @@ class SettingsActivity : AppCompatActivity() {
     private fun updateProfileImage(base64: String) {
         val userId = intent.getStringExtra("USER_ID") ?: ""
 
-        val updateData = mapOf(
-            "profileImage" to base64,
-            "loggedInUserId" to userId
+        // CORREÇÃO AQUI: Precisas de criar a instância da Data Class ProfileImageRequest
+        val pImgRequest = ProfileImageRequest(
+            profileImage = base64,
+            loggedInUserId = userId
         )
 
-        apiService.updateUser(userId, updateData).enqueue(object : Callback<ProfileData> {
+        // Passamos 'pImgRequest' que acabámos de criar
+        RetrofitClient.instance.updateUser(userId, pImgRequest).enqueue(object : Callback<ProfileData> {
             override fun onResponse(call: Call<ProfileData>, response: Response<ProfileData>) {
                 if (response.isSuccessful) {
                     Toast.makeText(this@SettingsActivity, "Imagem atualizada!", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(this@SettingsActivity, "Erro ao atualizar", Toast.LENGTH_SHORT).show()
                 }
             }
             override fun onFailure(call: Call<ProfileData>, t: Throwable) {
-                Toast.makeText(this@SettingsActivity, "Erro de ligação", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@SettingsActivity, "Erro de rede", Toast.LENGTH_SHORT).show()
             }
         })
     }
 
 
-    private fun mostrarDialogoMudarSenha(userId: String) {
-        val builder = android.app.AlertDialog.Builder(this)
-        builder.setTitle("Nova Palavra-passe")
 
-        val input = android.widget.EditText(this)
-        input.inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
-        builder.setView(input)
-
-        builder.setPositiveButton("Atualizar") { _, _ ->
-            val novaSenha = input.text.toString()
-            if (novaSenha.isNotEmpty()) {
-                // Aqui chamarias a rota da API que discutimos antes
-                Toast.makeText(this, "A atualizar...", Toast.LENGTH_SHORT).show()
-            }
-        }
-        builder.setNegativeButton("Cancelar", null)
-        builder.show()
-    }
 }

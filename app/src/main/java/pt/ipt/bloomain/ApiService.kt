@@ -48,6 +48,14 @@ data class CreatorInfo(val _id: String, val username: String, val profileImage: 
 // Resposta do Seguir
 data class FollowResponse(val message: String, val isFollowing: Boolean)
 
+data class LikeRequest(val userId: String)
+
+data class DeleteRequest(val loggedInUserId: String)
+
+data class FollowRequest(val followerId: String)
+
+data class ProfileImageRequest(val profileImage: String, val loggedInUserId: String)
+
 // Endpoints da API
 interface ApiService {
 
@@ -81,11 +89,11 @@ interface ApiService {
 
     // Atualizar dados do Utilizador
     @PATCH("users/{id}")
-    fun updateUser(@Path("id") id: String, @Body data: Map<String, String>): Call<ProfileData>
+    fun updateUser(@Path("id") id: String, @Body data: Any): Call<ProfileData>
 
     // Gostar do Post
     @POST("posts/{postId}/like")
-    fun toggleLike(@Path("postId") postId: String, @Body request: Map<String, String>): Call<PostResponse>
+    fun toggleLike(@Path("id") postId: String, @Body request: LikeRequest): Call<PostResponse>
 
     // Mostrar Comentários
     @GET("posts/{postId}/comments")
@@ -93,7 +101,7 @@ interface ApiService {
 
     // Seguir Utilizador
     @POST("users/{id}/follow")
-    fun toggleFollow(@Path("id") userToFollowId: String, @Body body: Map<String, String>): Call<FollowResponse>
+    fun toggleFollow(@Path("id") userIdToFollow: String, @Body request: FollowRequest): Call<FollowResponse>
 
     // Eliminar Comentário
     @DELETE("comments/{id}")
@@ -101,11 +109,11 @@ interface ApiService {
 
     // Eliminar publicação
     @HTTP(method = "DELETE", path = "posts/{id}", hasBody = true)
-    fun deletePost(@Path("id") postId: String, @Body body: Map<String, String>): Call<PostResponse>
+    fun deletePost(@Path("id") postId: String, @Body request: DeleteRequest): Call<PostResponse>
 
     // Eliminar conta
     @HTTP(method = "DELETE", path = "users/{id}", hasBody = true)
-    fun deleteAccount(@Path("id") userId: String, @Body body: Map<String, String>): Call<PostResponse>
+    fun deleteAccount(@Path("id") userId: String, @Body body: DeleteRequest): Call<PostResponse>
 
     // Obter Post
     @GET("posts/single/{postId}")

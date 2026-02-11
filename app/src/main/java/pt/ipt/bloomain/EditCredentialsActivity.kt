@@ -5,11 +5,11 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import pt.ipt.bloomain.retrofitpackage.RetrofitClient
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+
 
 class EditCredentialsActivity : AppCompatActivity() {
 
@@ -80,12 +80,7 @@ class EditCredentialsActivity : AppCompatActivity() {
      * 5. Em caso de falha ou erro de resposta, notifica o utilizador via Toast.
      */
     private fun updateUser(id: String, username: String, password: String, bio: String) {
-        val retrofit = Retrofit.Builder()
-            .baseUrl("http://192.168.1.211:3000/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
 
-        val apiService = retrofit.create(ApiService::class.java)
 
         val updateData = mutableMapOf<String, String>()
 
@@ -95,18 +90,20 @@ class EditCredentialsActivity : AppCompatActivity() {
         if (password.isNotEmpty()) updateData["password"] = password
         if (bio.isNotEmpty()) updateData["bio"] = bio
 
-        apiService.updateUser(id, updateData).enqueue(object : Callback<ProfileData> {
+        RetrofitClient.instance.updateUser(id, updateData).enqueue(object : Callback<ProfileData> {
             override fun onResponse(call: Call<ProfileData>, response: Response<ProfileData>) {
                 if (response.isSuccessful) {
-                    Toast.makeText(this@EditCredentialsActivity, "Alterado com sucesso!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@EditCredentialsActivity, "Perfil atualizado com sucesso!", Toast.LENGTH_SHORT).show()
                     finish()
                 } else {
-                    Toast.makeText(this@EditCredentialsActivity, "Erro ao atualizar", Toast.LENGTH_SHORT).show()
+                    // Requisito 57: Mensagens de erro adequadas
+                    Toast.makeText(this@EditCredentialsActivity, "Erro do servidor: ${response.code()}", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onFailure(call: Call<ProfileData>, t: Throwable) {
-                Toast.makeText(this@EditCredentialsActivity, "Falha na ligação", Toast.LENGTH_SHORT).show()
+                // Requisito 57: Mensagem clara quando o servidor local está desligado
+                Toast.makeText(this@EditCredentialsActivity, "Falha na ligação: Verifique o servidor local", Toast.LENGTH_SHORT).show()
             }
         })
     }

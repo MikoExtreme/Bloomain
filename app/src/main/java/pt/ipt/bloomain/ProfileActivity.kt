@@ -21,11 +21,10 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import pt.ipt.bloomain.adapters.ProfilePostsAdapter
+import pt.ipt.bloomain.retrofitpackage.RetrofitClient
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 
 class ProfileActivity : AppCompatActivity() {
 
@@ -38,13 +37,7 @@ class ProfileActivity : AppCompatActivity() {
 
     private lateinit var currentUserId: String
 
-    private val apiService by lazy {
-        Retrofit.Builder()
-            .baseUrl("http://192.168.1.211:3000/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(ApiService::class.java)
-    }
+
 
     /**
      * Gere a visualização e interação com o perfil de um utilizador.
@@ -88,16 +81,20 @@ class ProfileActivity : AppCompatActivity() {
         }
 
         btnFollow.setOnClickListener {
-            val body = mapOf("followerId" to currentUserId)
-            apiService.toggleFollow(userId, body).enqueue(object : Callback<FollowResponse> {
+            // Requisito 30: Uso de Data Class em vez de Map
+            val request = FollowRequest(followerId = currentUserId)
+
+            RetrofitClient.instance.toggleFollow(profileUserId, request).enqueue(object : Callback<FollowResponse> {
                 override fun onResponse(call: Call<FollowResponse>, response: Response<FollowResponse>) {
                     if (response.isSuccessful) {
                         val isFollowing = response.body()?.isFollowing ?: false
                         btnFollow.text = if (isFollowing) "A Seguir" else "Seguir"
-                        loadProfileData(userId)
+                        getProfile(profileUserId) // Atualiza contadores
                     }
                 }
-                override fun onFailure(call: Call<FollowResponse>, t: Throwable) {}
+                override fun onFailure(call: Call<FollowResponse>, t: Throwable) {
+                    Toast.makeText(this@ProfileActivity, "Erro ao processar follow", Toast.LENGTH_SHORT).show()
+                }
             })
         }
 
@@ -119,30 +116,39 @@ class ProfileActivity : AppCompatActivity() {
      * Após o sucesso, dispara o [loadUserPosts] para preencher a grelha de fotografias.
      */
     private fun getProfile(userId: String) {
-        apiService.getProfile(userId).enqueue(object : Callback<ProfileData> {
+        RetrofitClient.instance.getProfile(userId).enqueue(object : Callback<ProfileData> {
             override fun onResponse(call: Call<ProfileData>, response: Response<ProfileData>) {
                 if (response.isSuccessful) {
                     val profile = response.body()
-                    currentLoadedUsername = profile?.username ?: ""
-                    findViewById<TextView>(R.id.usernameTextView).text = currentLoadedUsername
+
+                    // Atualiza Textos e Bio
+                    findViewById<TextView>(R.id.usernameTextView).text = profile?.username ?: ""
                     findViewById<TextView>(R.id.bioTextView).text = profile?.bio ?: "Sem biografia"
+
+                    // Atualiza Estatísticas (Posts, Seguidores, Seguindo)
                     findViewById<TextView>(R.id.postsCountText).text = profile?.stats?.posts.toString()
                     tvFollowers.text = profile?.stats?.followers.toString()
                     tvFollowing.text = profile?.stats?.following.toString()
 
+                    // Atualiza Imagem de Perfil
                     profile?.profileImage?.let { base64 ->
                         if (base64.isNotEmpty()) {
                             try {
                                 val imageBytes = Base64.decode(base64, Base64.DEFAULT)
                                 val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
                                 findViewById<ImageView>(R.id.profileImage).setImageBitmap(bitmap)
-                            } catch (e: Exception) { e.printStackTrace() }
+                            } catch (e: Exception) { Log.e("PROFILE", "Erro ao processar imagem") }
                         }
                     }
+
+                    // Carrega a grelha de fotos após ter os dados do perfil
                     loadUserPosts(userId)
                 }
             }
-            override fun onFailure(call: Call<ProfileData>, t: Throwable) {}
+
+            override fun onFailure(call: Call<ProfileData>, t: Throwable) {
+                Toast.makeText(this@ProfileActivity, "Erro ao ligar ao servidor", Toast.LENGTH_SHORT).show()
+            }
         })
     }
     /**
@@ -150,13 +156,12 @@ class ProfileActivity : AppCompatActivity() {
      * * Configura o [ProfilePostsAdapter] para organizar as imagens em grelha.
      */
     private fun loadUserPosts(userId: String) {
-        apiService.getUserPosts(userId).enqueue(object : Callback<List<PostItemResponse>> {
+        RetrofitClient.instance.getUserPosts(userId).enqueue(object : Callback<List<PostItemResponse>> {
             override fun onResponse(call: Call<List<PostItemResponse>>, response: Response<List<PostItemResponse>>) {
                 if (response.isSuccessful) {
                     val userPosts = response.body() ?: emptyList()
-
                     recyclerView.adapter = ProfilePostsAdapter(userPosts, currentUserId) { post ->
-                        Log.d("PROFILE", "Clicaste no post ${post._id}")
+                        // Navegar para detalhe do post se quiseres
                     }
                 }
             }
@@ -164,18 +169,6 @@ class ProfileActivity : AppCompatActivity() {
         })
     }
 
-    private fun loadProfileData(userId: String) {
-        apiService.getProfile(userId).enqueue(object : Callback<ProfileData> {
-            override fun onResponse(call: Call<ProfileData>, response: Response<ProfileData>) {
-                if (response.isSuccessful) {
-                    val profile = response.body()
-                    tvFollowers.text = profile?.stats?.followers.toString()
-                    tvFollowing.text = profile?.stats?.following.toString()
-                }
-            }
-            override fun onFailure(call: Call<ProfileData>, t: Throwable) {}
-        })
-    }
 
     override fun onResume() {
         super.onResume()
