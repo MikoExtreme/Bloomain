@@ -14,6 +14,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_margin="20dp"
-        android:text="Confirmar Localização"
+        android:text="@string/confirmlocation"
         android:backgroundTint="#2E7D32" />
 </RelativeLayout>

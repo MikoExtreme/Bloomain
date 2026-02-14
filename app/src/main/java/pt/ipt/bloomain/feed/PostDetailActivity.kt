@@ -1,16 +1,19 @@
-package pt.ipt.bloomain
+package pt.ipt.bloomain.feed
 
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import pt.ipt.bloomain.R
 import pt.ipt.bloomain.adapters.PostsAdapter
-import pt.ipt.bloomain.retrofitpackage.RetrofitClient
+import pt.ipt.bloomain.retrofit_api.LikeRequest
+import pt.ipt.bloomain.retrofit_api.PostItemResponse
+import pt.ipt.bloomain.retrofit_api.PostResponse
+import pt.ipt.bloomain.retrofit_api.RetrofitClient
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-
 
 class PostDetailActivity : AppCompatActivity() {
 
@@ -51,7 +54,11 @@ class PostDetailActivity : AppCompatActivity() {
                             apiService = RetrofitClient.instance,
                             onLike = { clickedPost -> toggleLike(clickedPost._id) },
                             onDelete = {
-                                Toast.makeText(this@PostDetailActivity, "Post removido", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    this@PostDetailActivity,
+                                    "Post removido",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                                 finish()
                             }
                         )

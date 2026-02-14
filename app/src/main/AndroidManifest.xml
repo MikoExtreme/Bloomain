@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-    <uses-permission android:name="android.permission.INTERNET" /> <!-- Adicionado-->
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -21,7 +21,7 @@
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
+        android:label="@string/appname"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Bloomain"
@@ -31,7 +31,7 @@
 
 
         <activity
-            android:name=".MainActivity"
+            android:name=".authentication.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -39,19 +39,20 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".RegisterActivity" />
-        <activity android:name=".ProfileActivity" />
-        <activity android:name=".SettingsActivity" />
-        <activity android:name=".PostMakerActivity" />
-        <activity android:name=".FeedActivity" />
-        <activity android:name=".EditImageActivity"/>
-        <activity android:name=".EditCredentialsActivity"/>
-        <activity android:name=".CreatePostActivity"/>
-        <activity android:name=".SelectLocationActivity"/>
-        <activity android:name=".CommentsActivity"/>
-        <activity android:name=".PostDetailActivity"/>
-        <activity android:name=".SearchActivity"/>
-        <activity android:name=".AboutActivity"/>
+        <activity android:name=".authentication.RegisterActivity" />
+        <activity android:name=".profile.ProfileActivity" />
+        <activity android:name=".profile.SettingsActivity" />
+        <activity android:name=".feed.PostMakerActivity" />
+        <activity android:name=".feed.FeedActivity" />
+        <activity android:name=".profile.EditImageActivity"/>
+        <activity android:name=".profile.EditCredentialsActivity"/>
+        <activity android:name=".feed.CreatePostActivity"/>
+        <activity android:name=".feed.SelectLocationActivity"/>
+        <activity android:name=".feed.CommentsActivity"/>
+        <activity android:name=".feed.PostDetailActivity"/>
+        <activity android:name=".feed.SearchActivity"/>
+        <activity android:name=".authentication.AboutActivity"/>
+        <activity android:name=".feed.ViewLocationActivity"/>
 
 
         <meta-data

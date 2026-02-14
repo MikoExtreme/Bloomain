@@ -11,7 +11,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Foto de Perfil"
+        android:text="@string/profilePhoto"
         android:textColor="#333333"
         android:textSize="22sp"
         android:textStyle="bold" />
@@ -31,7 +31,7 @@
     android:id="@+id/btnSelectNew"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:text="Escolher da Galeria"
+    android:text="@string/chooseprofilephoto"
     android:layout_marginTop="20dp"
     style="@style/Widget.AppCompat.Button.Colored"/>
 
@@ -39,7 +39,7 @@
         android:id="@+id/btnSave"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Guardar Alterações"
+        android:text="@string/savechanges"
         android:enabled="false"
         android:layout_marginTop="10dp"/>
 
@@ -47,7 +47,7 @@
         android:id="@+id/btnCancel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Cancelar"
+        android:text="@string/cancel"
         android:backgroundTint="#FF5555"
         android:layout_marginTop="20dp"
         style="@style/Widget.AppCompat.Button.Borderless"/>

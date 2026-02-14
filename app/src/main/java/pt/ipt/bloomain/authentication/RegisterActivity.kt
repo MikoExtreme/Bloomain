@@ -1,4 +1,4 @@
-package pt.ipt.bloomain
+package pt.ipt.bloomain.authentication
 
 import android.graphics.Rect
 import android.net.Uri
@@ -8,25 +8,36 @@ import android.util.Patterns
 import android.view.MotionEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.widget.*
+import android.widget.Button
+import android.widget.EditText
+import android.widget.ImageView
+import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import org.json.JSONObject
-import pt.ipt.bloomain.retrofitpackage.RetrofitClient
+import pt.ipt.bloomain.R
+import pt.ipt.bloomain.retrofit_api.RegisterRequest
+import pt.ipt.bloomain.retrofit_api.RegisterResponse
+import pt.ipt.bloomain.retrofit_api.RetrofitClient
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 
+/**
+* Activity responsável pelo registo de novos utilizadores
+* */
 class RegisterActivity : AppCompatActivity() {
 
     private var base64Image: String = ""
     private lateinit var progressBar: ProgressBar
     private lateinit var btnRegister: Button
 
+    // Obtêm imagens da galeria do telemóvel do utilizador
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
             findViewById<ImageView>(R.id.logo).setImageURI(it)
@@ -65,6 +76,7 @@ class RegisterActivity : AppCompatActivity() {
             pickImageLauncher.launch("image/*")
         }
 
+        // Lógica de submissão dos dados do utilizador
         btnRegister.setOnClickListener {
             val username = etUsername.text.toString().trim()
             val email = etEmail.text.toString().trim()
@@ -72,6 +84,7 @@ class RegisterActivity : AppCompatActivity() {
             val passwordConfirm = etPasswordConfirm.text.toString()
             val passwordPattern = "^(?=.*[0-9])(?=.*[A-Z])(?=.*[@#$%^&+=!])(?=\\S+$).{8,}$".toRegex()
 
+            // Validações do nome, email e palavra-passe
             if (username.length < 3) {
                 etUsername.error = "O nome deve ter pelo menos 3 caracteres"
                 return@setOnClickListener
@@ -98,14 +111,14 @@ class RegisterActivity : AppCompatActivity() {
 
             val request = RegisterRequest(username, email, password, base64Image)
 
+            // Chamada assíncrona para o endpoint de registo
             RetrofitClient.instance.register(request).enqueue(object : Callback<RegisterResponse> {
                 override fun onResponse(call: Call<RegisterResponse>, response: Response<RegisterResponse>) {
                     setLoading(false)
                     if (response.isSuccessful) {
                         Toast.makeText(this@RegisterActivity, "Conta criada com sucesso!", Toast.LENGTH_LONG).show()
-                        finish() // Volta para o Login
+                        finish()
                     } else {
-                        // Requisito 57: Mensagens de erro adequadas vindas do backend (ex: Email já existe)
                         val errorBody = response.errorBody()?.string()
                         val message = try {
                             JSONObject(errorBody).getString("message")
@@ -118,7 +131,7 @@ class RegisterActivity : AppCompatActivity() {
 
                 override fun onFailure(call: Call<RegisterResponse>, t: Throwable) {
                     setLoading(false)
-                    Toast.makeText(this@RegisterActivity, "🌐 Sem ligação ao servidor local", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@RegisterActivity, "Sem ligação ao servidor local", Toast.LENGTH_LONG).show()
                 }
             })
         }
@@ -132,6 +145,9 @@ class RegisterActivity : AppCompatActivity() {
         btnRegister.alpha = if (isLoading) 0.5f else 1.0f
     }
 
+    /**
+     * Gere a propagação de eventos de toque para fechar o teclado automaticamente.
+     */
     override fun dispatchTouchEvent(event: MotionEvent): Boolean {
         if (event.action == MotionEvent.ACTION_DOWN) {
             val v = currentFocus

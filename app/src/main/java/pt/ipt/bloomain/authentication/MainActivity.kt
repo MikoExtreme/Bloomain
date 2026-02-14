@@ -1,4 +1,4 @@
-package pt.ipt.bloomain
+package pt.ipt.bloomain.authentication
 
 import android.content.Intent
 import android.graphics.Rect
@@ -12,20 +12,47 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import pt.ipt.bloomain.retrofitpackage.RetrofitClient
+import pt.ipt.bloomain.R
+import pt.ipt.bloomain.authentication.RegisterActivity
+import pt.ipt.bloomain.feed.FeedActivity
+import pt.ipt.bloomain.retrofit_api.LoginRequest
+import pt.ipt.bloomain.retrofit_api.LoginResponse
+import pt.ipt.bloomain.retrofit_api.RetrofitClient
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 
+/**
+* Activity responsável pela autenticação dos utilizadores
+* */
 class MainActivity : AppCompatActivity() {
+
+    // Nome do ficheiro de preferências, para que o utilizador não tenha de fazer autenticação sempre que entre na aplicação
+    private val PREFS_NAME = "BloomainPrefs"
+
+
     /**
      * Inicializa a Activity principal de Login.
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Lógica de persistência
+        // Verificamos se o SharedPreferences tem o USER_ID guardado anteriormente
+        // Se existir, vai para o layout correspondente ao feed
+        val sharedPrefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+        val savedUserId = sharedPrefs.getString("USER_ID", null)
+
+        if(savedUserId != null){
+            goToFeed(savedUserId)
+            return
+        }
+
         enableEdgeToEdge()
         setContentView(R.layout.login)
+
+
 
         val btnAbout = findViewById<Button>(R.id.btnAboutLogin)
 
@@ -48,12 +75,15 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+
+        // Lógica de autenticação
+        // Valida o email e a palavra-passe, com o que existe na base de dados
         val loginButton = findViewById<Button>(R.id.loginButton)
         loginButton.setOnClickListener {
-            val username = findViewById<EditText>(R.id.emailEditText).text.toString()
+            val email = findViewById<EditText>(R.id.emailEditText).text.toString().trim()
             val password = findViewById<EditText>(R.id.passwordEditText).text.toString()
 
-            if (username.isEmpty() || password.isEmpty()) {
+            if (email.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Preenche todos os campos", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
@@ -63,7 +93,7 @@ class MainActivity : AppCompatActivity() {
 
 
 
-            val loginRequest = LoginRequest(username, password)
+            val loginRequest = LoginRequest(email, password)
 
 
             RetrofitClient.instance.login(loginRequest).enqueue(object : Callback<LoginResponse> {
@@ -71,18 +101,21 @@ class MainActivity : AppCompatActivity() {
                     if (response.isSuccessful) {
                         val userId = response.body()?.userId
 
-                        val intent = Intent(this@MainActivity, FeedActivity::class.java)
-                        intent.putExtra("USER_ID", userId)
-                        startActivity(intent)
-                        finish() // Impede o utilizador de voltar ao login com o botão "Back"
+                        // Guarda a sessão do utilizador autenticado, para futuro uso da aplicação
+                        val sharedPrefs = getSharedPreferences(PREFS_NAME,MODE_PRIVATE)
+                        with(sharedPrefs.edit()){
+                            putString("USER_ID", userId)
+                            apply()
+                        }
+
+                        goToFeed(userId)
+
                     } else {
-                        // Requisito 57: Mensagem de erro adequada
                         Toast.makeText(this@MainActivity, "Credenciais inválidas. Tente novamente.", Toast.LENGTH_SHORT).show()
                     }
                 }
 
                 override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
-                    // Requisito 57: Notificar se o servidor local não estiver ligado
                     Toast.makeText(this@MainActivity, "Erro de ligação: Servidor local inacessível", Toast.LENGTH_LONG).show()
                 }
             })
@@ -106,5 +139,15 @@ class MainActivity : AppCompatActivity() {
             }
         }
         return super.dispatchTouchEvent(event)
+    }
+
+    /**
+     * Direciona para o feed
+     */
+    private fun goToFeed(id: String?) {
+        val intent = Intent(this, FeedActivity::class.java)
+        intent.putExtra("USER_ID", id)
+        startActivity(intent)
+        finish()
     }
 }

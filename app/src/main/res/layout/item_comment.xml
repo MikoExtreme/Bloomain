@@ -4,6 +4,7 @@
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal"
+    android:gravity="center_vertical"
     android:padding="10dp"
     android:background="@color/light_earth_brown">
 
@@ -16,31 +17,40 @@
         app:shapeAppearanceOverlay="@style/CircleImage" />
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_weight="1"
         android:layout_marginStart="10dp"
-        android:orientation="vertical"
-        android:backgroundTint="@color/light_earth_brown">
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/tvCommentUsername"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textStyle="bold"
-            android:text="Username" />
+            android:text="@string/username" />
 
         <TextView
             android:id="@+id/tvCommentDescription"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Este é o texto do comentário." />
+            android:text="@string/commenttext" />
+
         <TextView
             android:id="@+id/tvCommentTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="2 min"
+            android:text="@string/timepastpost"
             android:textSize="12sp"
-            android:textColor="#808080"
-            android:layout_marginStart="8dp" />
+            android:textColor="#808080" />
     </LinearLayout>
-</LinearLayout>
+
+    <ImageButton
+        android:id="@+id/btnDeleteComment"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@android:drawable/ic_menu_delete"
+        android:contentDescription="@string/deletecomment"
+        android:backgroundTint="@android:color/holo_red_dark"
+        android:visibility="gone" /> </LinearLayout>

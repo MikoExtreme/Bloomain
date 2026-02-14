@@ -1,15 +1,16 @@
-package pt.ipt.bloomain
+package pt.ipt.bloomain.profile
 
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import pt.ipt.bloomain.retrofitpackage.RetrofitClient
+import pt.ipt.bloomain.R
+import pt.ipt.bloomain.retrofit_api.ProfileData
+import pt.ipt.bloomain.retrofit_api.RetrofitClient
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-
 
 class EditCredentialsActivity : AppCompatActivity() {
 

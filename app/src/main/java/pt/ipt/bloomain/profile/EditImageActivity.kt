@@ -1,4 +1,4 @@
-package pt.ipt.bloomain
+package pt.ipt.bloomain.profile
 
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -9,11 +9,13 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import pt.ipt.bloomain.retrofitpackage.RetrofitClient
+import pt.ipt.bloomain.R
+import pt.ipt.bloomain.retrofit_api.ProfileData
+import pt.ipt.bloomain.retrofit_api.ProfileImageRequest
+import pt.ipt.bloomain.retrofit_api.RetrofitClient
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-
 
 class EditImageActivity : AppCompatActivity() {
 
@@ -82,7 +84,8 @@ class EditImageActivity : AppCompatActivity() {
             loggedInUserId = userId
         )
 
-        RetrofitClient.instance.updateUser(userId, imageRequest).enqueue(object : Callback<ProfileData> {
+        RetrofitClient.instance.updateUser(userId, imageRequest).enqueue(object :
+            Callback<ProfileData> {
             override fun onResponse(call: Call<ProfileData>, response: Response<ProfileData>) {
                 if (response.isSuccessful) {
                     Toast.makeText(this@EditImageActivity, "Foto de perfil atualizada!", Toast.LENGTH_SHORT).show()

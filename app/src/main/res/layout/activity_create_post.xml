@@ -14,7 +14,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Novo Post"
+            android:text="@string/newposttitle"
             android:textSize="22sp"
             android:textStyle="bold"
             android:layout_marginBottom="16dp"/>
@@ -29,20 +29,20 @@
             android:id="@+id/btnCapture"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Tirar Foto"
+            android:text="@string/takepostphoto"
             android:layout_marginTop="8dp"/>
 
         <EditText
             android:id="@+id/editCaption"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Escreve uma legenda..."
+            android:hint="@string/writepostdescription"
             android:layout_marginTop="16dp"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Localização (Opcional - Clique Longo no Mapa)"
+            android:text="@string/postlocation"
             android:layout_marginTop="16dp"
             android:textSize="12sp"/>
 
@@ -52,7 +52,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="📍 Selecionar Localização"
+            android:text="@string/selectpostlocation"
             android:textColor="#2E7D32"
             app:strokeColor="#2E7D32"
             app:icon="@android:drawable/ic_dialog_map" />
@@ -61,7 +61,7 @@
             android:id="@+id/btnPublish"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Publicar Post"
+            android:text="@string/publishpost"
             android:backgroundTint="#2E7D32"
             android:textColor="#FFFFFF"
             android:layout_marginTop="24dp"/>

@@ -1,17 +1,23 @@
-package pt.ipt.bloomain
+package pt.ipt.bloomain.feed
 
 import android.net.Uri
 import android.os.Bundle
 import android.util.Base64
 import android.view.View
-import android.widget.*
+import android.widget.Button
+import android.widget.EditText
+import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import pt.ipt.bloomain.retrofitpackage.RetrofitClient
+import pt.ipt.bloomain.R
+import pt.ipt.bloomain.retrofit_api.PostRequest
+import pt.ipt.bloomain.retrofit_api.PostResponse
+import pt.ipt.bloomain.retrofit_api.RetrofitClient
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-
 
 class PostMakerActivity : AppCompatActivity() {
 

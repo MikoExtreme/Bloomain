@@ -1,4 +1,4 @@
-package pt.ipt.bloomain
+package pt.ipt.bloomain.feed
 
 import android.os.Bundle
 import android.text.Editable
@@ -8,12 +8,13 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import pt.ipt.bloomain.UserSearchAdapter // Vamos criar este a seguir
-import pt.ipt.bloomain.retrofitpackage.RetrofitClient
+import pt.ipt.bloomain.R
+import pt.ipt.bloomain.feed.UserSearchAdapter
+import pt.ipt.bloomain.retrofit_api.ProfileData
+import pt.ipt.bloomain.retrofit_api.RetrofitClient
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-
 
 class SearchActivity : AppCompatActivity() {
 

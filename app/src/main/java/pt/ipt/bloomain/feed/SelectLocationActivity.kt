@@ -1,17 +1,16 @@
-package pt.ipt.bloomain
+package pt.ipt.bloomain.feed
 
 import android.content.Intent
+import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
-import android.os.Bundle
-import com.google.android.gms.maps.SupportMapFragment
 import pt.ipt.bloomain.R
-
 
 class SelectLocationActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var mMap: GoogleMap

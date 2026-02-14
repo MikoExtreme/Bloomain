@@ -1,4 +1,4 @@
-package pt.ipt.bloomain
+package pt.ipt.bloomain.feed
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -12,12 +12,19 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import pt.ipt.bloomain.profile.ProfileActivity
+import pt.ipt.bloomain.R
+import pt.ipt.bloomain.feed.SearchActivity
 import pt.ipt.bloomain.adapters.PostsAdapter
-import pt.ipt.bloomain.retrofitpackage.RetrofitClient
+import pt.ipt.bloomain.retrofit_api.LikeRequest
+import pt.ipt.bloomain.retrofit_api.PostItemResponse
+import pt.ipt.bloomain.retrofit_api.PostResponse
+import pt.ipt.bloomain.retrofit_api.ProfileData
+import pt.ipt.bloomain.retrofit_api.RetrofitClient
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-
 
 class FeedActivity : AppCompatActivity() {
 
@@ -37,7 +44,7 @@ class FeedActivity : AppCompatActivity() {
         userId = intent.getStringExtra("USER_ID") ?: ""
 
         // Botão de Criar Post
-        val fabCreate = findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.fabCreatePostFeed)
+        val fabCreate = findViewById<FloatingActionButton>(R.id.fabCreatePostFeed)
         fabCreate.setOnClickListener {
             val intent = Intent(this, CreatePostActivity::class.java)
             intent.putExtra("USER_ID", userId)
@@ -123,7 +130,8 @@ class FeedActivity : AppCompatActivity() {
     private fun likePost(postId: String) {
         val request = LikeRequest(userId = userId)
 
-        RetrofitClient.instance.toggleLike(postId, request).enqueue(object : Callback<PostResponse> {
+        RetrofitClient.instance.toggleLike(postId, request).enqueue(object :
+            Callback<PostResponse> {
             override fun onResponse(call: Call<PostResponse>, response: Response<PostResponse>) {
                 if (response.isSuccessful) {
                     loadFeed()

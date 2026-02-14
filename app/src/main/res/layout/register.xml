@@ -26,7 +26,7 @@
             android:id="@+id/logo"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:contentDescription="Foto de Perfil"
+            android:contentDescription="@string/profilePhoto"
             android:scaleType="centerCrop"
             android:src="@drawable/logo_oficial_bloomainv2" />
     </com.google.android.material.card.MaterialCardView>
@@ -36,7 +36,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Tocar para escolher foto"
+        android:text="@string/chooseprofilephotofirst"
         android:textColor="#2F5D42"
         android:textStyle="bold"
         android:textSize="12sp"
@@ -59,7 +59,7 @@
             android:id="@+id/nameEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Nome de utilizador"
+            android:hint="@string/username"
             android:inputType="textPersonName" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -77,7 +77,7 @@
             android:id="@+id/emailEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Email"
+            android:hint="@string/email"
             android:inputType="textEmailAddress" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -96,7 +96,7 @@
             android:id="@+id/passwordEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Palavra-passe"
+            android:hint="@string/password"
             android:inputType="textPassword" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -115,7 +115,7 @@
             android:id="@+id/passwordConfirmationEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Confirme Palavra-passe"
+            android:hint="@string/confirmpassword"
             android:inputType="textPassword" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -125,7 +125,7 @@
         android:layout_height="wrap_content"
         android:backgroundTint="#6BBF59"
         android:padding="12dp"
-        android:text="Criar Conta"
+        android:text="@string/createaccount"
         android:textAllCaps="false"
         android:textColor="#2F5D42"
         app:layout_constraintBottom_toBottomOf="parent"

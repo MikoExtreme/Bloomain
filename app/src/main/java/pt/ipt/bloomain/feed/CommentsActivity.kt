@@ -1,19 +1,28 @@
-package pt.ipt.bloomain
+package pt.ipt.bloomain.feed
 
+import android.app.AlertDialog
 import android.os.Bundle
+import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import pt.ipt.bloomain.R
 import pt.ipt.bloomain.adapters.CommentsAdapter
-import pt.ipt.bloomain.retrofitpackage.RetrofitClient
+import pt.ipt.bloomain.retrofit_api.Comment
+import pt.ipt.bloomain.retrofit_api.CommentRequest
+import pt.ipt.bloomain.retrofit_api.CommentResponse
+import pt.ipt.bloomain.retrofit_api.PostResponse
+import pt.ipt.bloomain.retrofit_api.RetrofitClient
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-
+/**
+ * Activity responsável por gerir a visualização, criação e eliminação de comentários
+ * */
 class CommentsActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
@@ -34,7 +43,7 @@ class CommentsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_comments)
 
-
+        // Recuperação de dados passados pela Activity passada
         postId = intent.getStringExtra("POST_ID") ?: ""
         userId = intent.getStringExtra("USER_ID") ?: ""
 
@@ -48,7 +57,7 @@ class CommentsActivity : AppCompatActivity() {
 
         loadComments()
 
-
+        // Criação de novos comentários
         btnSend.setOnClickListener {
             val text = etComment.text.toString()
             if (text.isNotEmpty()) {
@@ -68,21 +77,25 @@ class CommentsActivity : AppCompatActivity() {
             override fun onResponse(call: Call<List<Comment>>, response: Response<List<Comment>>) {
                 if (response.isSuccessful) {
                     val commentsList = response.body() ?: emptyList()
-                    recyclerView.adapter = CommentsAdapter(commentsList)
+
+                    recyclerView.adapter = CommentsAdapter(
+                        comments = commentsList,
+                        currentUserId = userId,
+                        onDeleteClick = { commentId -> confirmedDelete(commentId) }
+                    )
                 } else {
-                    // Adicionamos validação de erro conforme o ponto 57 do enunciado
                     Toast.makeText(this@CommentsActivity, "Erro do servidor: ${response.code()}", Toast.LENGTH_SHORT).show()
                 }
             }
             override fun onFailure(call: Call<List<Comment>>, t: Throwable) {
-                Toast.makeText(this@CommentsActivity, "Falha de rede: Verifique a ligação", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@CommentsActivity, "Falha de rede", Toast.LENGTH_SHORT).show()
             }
         })
     }
 
     /**
      * Envia um novo comentário para o servidor e atualiza a interface.
-     * * Este método encapsula a descrição, o ID do autor e o ID do post num objeto [CommentRequest].
+     * * Este método encapsula a descrição, o ID do autor e o ID do post num objeto [pt.ipt.bloomain.retrofit_api.CommentRequest].
      * Faz uma chamada POST para o endpoint /comments. Em caso de sucesso:
      * 1. Limpa o campo de texto.
      * 2. Esconde o teclado.
@@ -100,7 +113,6 @@ class CommentsActivity : AppCompatActivity() {
                     loadComments()
                     Toast.makeText(this@CommentsActivity, "Comentado!", Toast.LENGTH_SHORT).show()
                 } else {
-                    // Mensagens de erro adequadas são obrigatórias
                     Toast.makeText(this@CommentsActivity, "Erro ao comentar", Toast.LENGTH_SHORT).show()
                 }
             }
@@ -120,9 +132,43 @@ class CommentsActivity : AppCompatActivity() {
     private fun hideKeyboard() {
         val view = this.currentFocus
         if (view != null) {
-            val imm = getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+            val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(view.windowToken, 0)
         }
+    }
+
+
+
+    /**
+     * Mostra um diálogo de confirmação antes de prosseguir com a eliminação do comentário
+     * Garante segunrança, em caso de toques acidentais
+     * */
+    private fun confirmedDelete(commentId: String) {
+        AlertDialog.Builder(this)
+            .setTitle("Eliminar Comentário")
+            .setMessage("Tens a certeza que queres apagar este comentário?")
+            .setPositiveButton("Sim, eliminar") { _, _ ->
+                deleteComment(commentId)
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    /**
+     * Elimina o comentário selecionado
+     */
+    private fun deleteComment(commentId: String) {
+        RetrofitClient.instance.deleteComment(commentId).enqueue(object : Callback<PostResponse> {
+            override fun onResponse(call: Call<PostResponse>, response: Response<PostResponse>) {
+                if (response.isSuccessful) {
+                    Toast.makeText(this@CommentsActivity, "Removido!", Toast.LENGTH_SHORT).show()
+                    loadComments() // Voltar a carregar os comentários existentes
+                }
+            }
+            override fun onFailure(call: Call<PostResponse>, t: Throwable) {
+                Toast.makeText(this@CommentsActivity, "Erro de rede", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 
 }

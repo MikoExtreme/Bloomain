@@ -1,4 +1,4 @@
-package pt.ipt.bloomain
+package pt.ipt.bloomain.profile
 
 import android.content.Intent
 import android.graphics.BitmapFactory
@@ -20,8 +20,14 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import pt.ipt.bloomain.R
+import pt.ipt.bloomain.profile.SettingsActivity
 import pt.ipt.bloomain.adapters.ProfilePostsAdapter
-import pt.ipt.bloomain.retrofitpackage.RetrofitClient
+import pt.ipt.bloomain.retrofit_api.FollowRequest
+import pt.ipt.bloomain.retrofit_api.FollowResponse
+import pt.ipt.bloomain.retrofit_api.PostItemResponse
+import pt.ipt.bloomain.retrofit_api.ProfileData
+import pt.ipt.bloomain.retrofit_api.RetrofitClient
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -84,7 +90,8 @@ class ProfileActivity : AppCompatActivity() {
             // Requisito 30: Uso de Data Class em vez de Map
             val request = FollowRequest(followerId = currentUserId)
 
-            RetrofitClient.instance.toggleFollow(profileUserId, request).enqueue(object : Callback<FollowResponse> {
+            RetrofitClient.instance.toggleFollow(profileUserId, request).enqueue(object :
+                Callback<FollowResponse> {
                 override fun onResponse(call: Call<FollowResponse>, response: Response<FollowResponse>) {
                     if (response.isSuccessful) {
                         val isFollowing = response.body()?.isFollowing ?: false
@@ -156,7 +163,8 @@ class ProfileActivity : AppCompatActivity() {
      * * Configura o [ProfilePostsAdapter] para organizar as imagens em grelha.
      */
     private fun loadUserPosts(userId: String) {
-        RetrofitClient.instance.getUserPosts(userId).enqueue(object : Callback<List<PostItemResponse>> {
+        RetrofitClient.instance.getUserPosts(userId).enqueue(object :
+            Callback<List<PostItemResponse>> {
             override fun onResponse(call: Call<List<PostItemResponse>>, response: Response<List<PostItemResponse>>) {
                 if (response.isSuccessful) {
                     val userPosts = response.body() ?: emptyList()

@@ -1,4 +1,4 @@
-package pt.ipt.bloomain
+package pt.ipt.bloomain.feed
 
 import android.content.Intent
 import android.graphics.BitmapFactory
@@ -9,9 +9,9 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import pt.ipt.bloomain.ProfileActivity
-import pt.ipt.bloomain.ProfileData
 import pt.ipt.bloomain.R
+import pt.ipt.bloomain.profile.ProfileActivity
+import pt.ipt.bloomain.retrofit_api.ProfileData
 
 class UserSearchAdapter(
     private val users: List<ProfileData>,

@@ -1,4 +1,4 @@
-package pt.ipt.bloomain
+package pt.ipt.bloomain.retrofit_api
 
 import retrofit2.Call
 import retrofit2.http.*
@@ -13,7 +13,7 @@ data class StatsData(val posts: Int, val followers: Int, val following: Int)
 data class PostRequest(val title: String, val description: String, val postImage: String, val location: String, val creatorId: String)
 
 // Resposta do Feed
-data class PostItemResponse(val _id: String, val title: String, val description: String, val postImage: String, val creator: CreatorInfo, val likes: List<String>, val createdAt: String)
+data class PostItemResponse(val _id: String, val title: String, val description: String, val postImage: String, val location: String?, val creator: CreatorInfo, val likes: List<String>, val createdAt: String)
 
 // Modelo do Comentário
 data class Comment(val _id: String, val creator: CommentCreator, val postId: String, val description: String, val createdAt: String)
@@ -28,7 +28,7 @@ data class CommentRequest(val creatorId: String, val postId: String, val descrip
 data class CommentResponse(val message: String, val commentId: String? = null)
 
 // Dados de login
-data class LoginRequest(val username: String, val password: String)
+data class LoginRequest(val email: String, val password: String)
 
 // Resposta do Login
 data class LoginResponse(val message: String, val userId: String, val username: String)
@@ -93,7 +93,7 @@ interface ApiService {
 
     // Gostar do Post
     @POST("posts/{postId}/like")
-    fun toggleLike(@Path("id") postId: String, @Body request: LikeRequest): Call<PostResponse>
+    fun toggleLike(@Path("postId") postId: String, @Body request: LikeRequest): Call<PostResponse>
 
     // Mostrar Comentários
     @GET("posts/{postId}/comments")
@@ -108,12 +108,12 @@ interface ApiService {
     fun deleteComment(@Path("id") commentId: String): Call<PostResponse>
 
     // Eliminar publicação
-    @HTTP(method = "DELETE", path = "posts/{id}", hasBody = true)
-    fun deletePost(@Path("id") postId: String, @Body request: DeleteRequest): Call<PostResponse>
+    @HTTP(method = "DELETE", path = "posts/{postId}", hasBody = true)
+    fun deletePost(@Path("postId") postId: String, @Body request: DeleteRequest): Call<PostResponse>
 
     // Eliminar conta
-    @HTTP(method = "DELETE", path = "users/{id}", hasBody = true)
-    fun deleteAccount(@Path("id") userId: String, @Body body: DeleteRequest): Call<PostResponse>
+    @HTTP(method = "DELETE", path = "users/{userId}", hasBody = true)
+    fun deleteAccount(@Path("userId") userId: String, @Body body: DeleteRequest): Call<PostResponse>
 
     // Obter Post
     @GET("posts/single/{postId}")

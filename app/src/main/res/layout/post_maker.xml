@@ -1,14 +1,83 @@
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="match_parent" android:padding="16dp" android:background="@color/more_light_brown">
-    <!--  Foto do usuário  -->
-    <ImageView android:id="@+id/imgUserPost" android:layout_width="48dp" android:layout_height="48dp" android:src="@drawable/ic_profile" android:background="@drawable/circle_image" android:scaleType="centerCrop" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent"/>
-    <!--  Nome do usuário  -->
-    <TextView android:id="@+id/txtUserNamePost" android:layout_width="0dp" android:layout_height="wrap_content" android:text="João Silva" android:textStyle="bold" android:textSize="14sp" android:textColor="@color/charcoal" app:layout_constraintStart_toEndOf="@id/imgUserPost" app:layout_constraintTop_toTopOf="@id/imgUserPost" app:layout_constraintEnd_toEndOf="parent" android:layout_marginStart="12dp"/>
-    <!--  Campo de texto  -->
-    <EditText android:id="@+id/edtPostContent" android:layout_width="0dp" android:layout_height="wrap_content" android:hint="Escreva algo..." android:minLines="3" android:gravity="top" android:textColor="@color/charcoal" android:textColorHint="@color/pebble_gray" android:background="@color/stone_gray" app:layout_constraintTop_toBottomOf="@id/imgUserPost" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent" android:layout_marginTop="16dp"/>
-    <!--  Preview da imagem  -->
-    <ImageView android:id="@+id/imgPostPreview" android:layout_width="0dp" android:layout_height="180dp" android:scaleType="centerCrop" android:visibility="gone" android:background="@color/pebble_gray" app:layout_constraintTop_toBottomOf="@id/edtPostContent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent" android:layout_marginTop="12dp"/>
-    <!--  Botão adicionar imagem  -->
-    <ImageButton android:id="@+id/btnAddImage" android:layout_width="48dp" android:layout_height="48dp" android:src="@drawable/ic_add_photo" android:tint="@color/forest_green" android:contentDescription="Adicionar imagem" app:layout_constraintTop_toBottomOf="@id/edtPostContent" app:layout_constraintStart_toStartOf="parent" android:layout_marginTop="16dp" tools:ignore="UseAppTint"/>
-    <!--  Botão publicar  -->
-    <Button android:id="@+id/btnPublishPost" android:layout_width="wrap_content" android:layout_height="48dp" android:text="Publicar" android:textStyle="bold" android:textColor="@color/white" android:backgroundTint="@color/forest_green" app:layout_constraintTop_toBottomOf="@id/edtPostContent" app:layout_constraintEnd_toEndOf="parent" android:layout_marginTop="16dp"/>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:background="@color/more_light_brown">
+    <ImageView
+        android:id="@+id/imgUserPost"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@drawable/ic_profile"
+        android:background="@drawable/circle_image"
+        android:scaleType="centerCrop"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:id="@+id/txtUserNamePost"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/username"
+        android:textStyle="bold"
+        android:textSize="14sp"
+        android:textColor="@color/charcoal"
+        app:layout_constraintStart_toEndOf="@id/imgUserPost"
+        app:layout_constraintTop_toTopOf="@id/imgUserPost"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="12dp"/>
+
+    <EditText
+        android:id="@+id/edtPostContent"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="@string/writedescription"
+        android:minLines="3"
+        android:gravity="top"
+        android:textColor="@color/charcoal"
+        android:textColorHint="@color/pebble_gray"
+        android:background="@color/stone_gray"
+        app:layout_constraintTop_toBottomOf="@id/imgUserPost"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"/>
+
+    <ImageView
+        android:id="@+id/imgPostPreview"
+        android:layout_width="0dp"
+        android:layout_height="180dp"
+        android:scaleType="centerCrop"
+        android:visibility="gone"
+        android:background="@color/pebble_gray"
+        app:layout_constraintTop_toBottomOf="@id/edtPostContent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="12dp"/>
+
+    <ImageButton
+        android:id="@+id/btnAddImage"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@drawable/ic_add_photo"
+        android:tint="@color/forest_green"
+        android:contentDescription="@string/addpostphoto"
+        app:layout_constraintTop_toBottomOf="@id/edtPostContent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="16dp"
+        tools:ignore="UseAppTint"/>
+
+    <Button
+        android:id="@+id/btnPublishPost"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:text="@string/publishpost"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/forest_green"
+        app:layout_constraintTop_toBottomOf="@id/edtPostContent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

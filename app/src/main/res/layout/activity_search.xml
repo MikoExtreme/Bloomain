@@ -19,7 +19,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="Procurar utilizadores..."
+            android:hint="@string/searchusers"
             android:background="@android:drawable/edit_text"
             android:padding="10dp"
             android:maxLines="1"
