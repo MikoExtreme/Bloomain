@@ -3,59 +3,101 @@ package pt.ipt.bloomain.retrofit_api
 import retrofit2.Call
 import retrofit2.http.*
 
-// Dados do Perfil
+/**
+ * Dados do Perfil
+  */
+
 data class ProfileData(val _id: String, val username: String, val bio: String, val profileImage: String, val stats: StatsData)
 
-// Estatísticas do Utilizador
+/**
+ * Estatísticas do Utilizador
+ *
+ */
 data class StatsData(val posts: Int, val followers: Int, val following: Int)
 
-// Criação do Post
+/**
+ * Criação do Post
+ */
 data class PostRequest(val title: String, val description: String, val postImage: String, val location: String, val creatorId: String)
 
-// Resposta do Feed
+/**
+ * Resposta do Feed
+ */
 data class PostItemResponse(val _id: String, val title: String, val description: String, val postImage: String, val location: String?, val creator: CreatorInfo, val likes: List<String>, val createdAt: String)
 
-// Modelo do Comentário
+/**
+ * Modelo do Comentário
+ */
 data class Comment(val _id: String, val creator: CommentCreator, val postId: String, val description: String, val createdAt: String)
 
-// Criador do Comentário
+/**
+ * Criador do Comentário
+ */
 data class CommentCreator(val _id: String, val username: String, val profileImage: String)
 
-// Pedido do Comentário
+/**
+ * Pedido do Comentário
+ */
 data class CommentRequest(val creatorId: String, val postId: String, val description: String)
 
-// Resposta do Comentário
+/**
+ * Resposta do Comentário
+ */
 data class CommentResponse(val message: String, val commentId: String? = null)
 
-// Dados de login
+/**
+ * Dados de login
+ */
 data class LoginRequest(val email: String, val password: String)
 
-// Resposta do Login
+/**
+ * Resposta do Login
+ */
 data class LoginResponse(val message: String, val userId: String, val username: String)
 
-// Dados de Registo
+/**
+ * Dados de Registo
+ */
 data class RegisterRequest(val username: String, val email: String, val password: String, val profileImage: String)
 
-// Resposta do registo
+/**
+ * Resposta do registo
+ */
 data class RegisterResponse(val message: String)
 
-// Confirmação do post
+/**
+ * Confirmação do post
+ */
 data class PostResponse(val message: String, val postId: String)
 
-// Dados do Criador
+/**
+ * Dados do Criador
+ */
 data class CreatorInfo(val _id: String, val username: String, val profileImage: String)
 
-// Resposta do Seguir
+/**
+ * Resposta do Seguir
+ */
 data class FollowResponse(val message: String, val isFollowing: Boolean)
 
+/**
+ * Dados do Gosto
+ */
 data class LikeRequest(val userId: String)
 
+/**
+ * Dados de Eliminação
+ */
 data class DeleteRequest(val loggedInUserId: String)
 
+/**
+ * Dados para dar Follow
+ */
 data class FollowRequest(val followerId: String)
 
-data class ProfileImageRequest(val profileImage: String, val loggedInUserId: String)
-
+/**
+ * Dados atualizados do Utilizador
+ */
 data class UpdateUserRequest(val loggedInUserId: String, val username: String? = null, val password: String? = null, val bio: String? = null, val profileImage: String? = null)
 
 
@@ -63,67 +105,99 @@ data class UpdateUserRequest(val loggedInUserId: String, val username: String? =
 // Endpoints da API
 interface ApiService {
 
-    // Obter Perfil
+    /**
+     * Obter Perfil
+     */
     @GET("profile/{userId}")
     fun getProfile(@Path("userId") userId: String): Call<ProfileData>
 
-    // Login
+    /**
+     * Login
+     */
     @POST("login")
     fun login(@Body loginData: LoginRequest): Call<LoginResponse>
 
-    // Criar Conta
+    /**
+     * Criar Conta
+     */
     @POST("register")
     fun register(@Body registerData: RegisterRequest): Call<RegisterResponse>
 
-    // Criar Post
+    /**
+     * Criar Post
+     */
     @POST("posts")
     fun createPost(@Body postData: PostRequest): Call<PostResponse>
 
-    // Carregar Feed
+    /**
+     * Carregar Feed
+     */
     @GET("posts")
     fun getFeed(): Call<List<PostItemResponse>>
 
-    // Criar Comentário
+    /**
+     * Criar Comentário
+     */
     @POST("comments")
     fun addComment(@Body commentData: CommentRequest): Call<CommentResponse>
 
-    // Posts do Utilizador
+    /**
+     * Posts do Utilizador
+     */
     @GET("posts/user/{userId}")
     fun getUserPosts(@Path("userId") userId: String): Call<List<PostItemResponse>>
 
-    // Atualizar dados do Utilizador
+    /**
+     * Atualizar dados do Utilizador
+     */
     @PATCH("users/{id}")
     fun updateUser(@Path("id") id: String, @Body data: UpdateUserRequest): Call<ProfileData>
 
-    // Gostar do Post
+    /**
+     * Dar like a uma Publicação
+     */
     @POST("posts/{postId}/like")
     fun toggleLike(@Path("postId") postId: String, @Body request: LikeRequest): Call<PostResponse>
 
-    // Mostrar Comentários
+    /**
+     * Mostrar Comentários
+     */
     @GET("posts/{postId}/comments")
     fun getComments(@Path("postId") postId: String): Call<List<Comment>>
 
-    // Seguir Utilizador
+    /**
+     * Seguir Utilizador
+     */
     @POST("users/{id}/follow")
     fun toggleFollow(@Path("id") userIdToFollow: String, @Body request: FollowRequest): Call<FollowResponse>
 
-    // Eliminar Comentário
+    /**
+     * Eliminar Comentário
+     */
     @DELETE("comments/{id}")
     fun deleteComment(@Path("id") commentId: String): Call<PostResponse>
 
-    // Eliminar publicação
+    /**
+     * Eliminar publicação
+     */
     @HTTP(method = "DELETE", path = "posts/{postId}", hasBody = true)
     fun deletePost(@Path("postId") postId: String, @Body request: DeleteRequest): Call<PostResponse>
 
-    // Eliminar conta
+    /**
+     * Eliminar conta
+     */
     @HTTP(method = "DELETE", path = "users/{userId}", hasBody = true)
     fun deleteAccount(@Path("userId") userId: String, @Body body: DeleteRequest): Call<PostResponse>
 
-    // Obter Post
+    /**
+     * Obter Post
+     */
     @GET("posts/single/{postId}")
     fun getPostById(@Path("postId") postId: String): Call<PostItemResponse>
 
-    // Pesquisar utilizadores
+    /**
+     * Pesquisar utilizadores
+     */
     @GET("users/search/{query}")
     fun searchUsers(@Path("query") query: String): Call<List<ProfileData>>
 }

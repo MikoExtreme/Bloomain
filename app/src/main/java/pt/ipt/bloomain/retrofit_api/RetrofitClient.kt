@@ -7,8 +7,8 @@ import retrofit2.converter.gson.GsonConverterFactory
  * Singleton responsável por gerir a instância do cliente Retrofit
  */
 object RetrofitClient {
-    // REGRAS IMPORTANTES:
-    // 1. Usa o IP da tua máquina (visto no ipconfig) em vez de localhost
+    // Como utilizar:
+    // 1. Usa o IP da tua máquina em vez de localhost
     // 2. Garante que termina com "/"
     private const val BASE_URL = "http://192.168.1.211:3000/"
 

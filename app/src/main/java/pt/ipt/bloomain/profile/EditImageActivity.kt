@@ -11,7 +11,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import pt.ipt.bloomain.R
 import pt.ipt.bloomain.retrofit_api.ProfileData
-import pt.ipt.bloomain.retrofit_api.ProfileImageRequest
 import pt.ipt.bloomain.retrofit_api.RetrofitClient
 import pt.ipt.bloomain.retrofit_api.UpdateUserRequest
 import retrofit2.Call

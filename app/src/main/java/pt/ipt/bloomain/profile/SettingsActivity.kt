@@ -11,8 +11,6 @@ import pt.ipt.bloomain.R
 import pt.ipt.bloomain.authentication.MainActivity
 import pt.ipt.bloomain.retrofit_api.DeleteRequest
 import pt.ipt.bloomain.retrofit_api.PostResponse
-import pt.ipt.bloomain.retrofit_api.ProfileData
-import pt.ipt.bloomain.retrofit_api.ProfileImageRequest
 import pt.ipt.bloomain.retrofit_api.RetrofitClient
 import retrofit2.Call
 import retrofit2.Callback
