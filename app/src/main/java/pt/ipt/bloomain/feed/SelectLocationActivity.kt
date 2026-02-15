@@ -12,6 +12,10 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import pt.ipt.bloomain.R
 
+/**
+ * Activity que permite ao utilizador selecionar uma localização no Google Maps através do mapa interativo
+ * Implementa [OnMapReadyCallback] que gere o ciclo de vida e a interação com o Google Maps SDK
+ */
 class SelectLocationActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var mMap: GoogleMap
     private var tempLocation: String = ""

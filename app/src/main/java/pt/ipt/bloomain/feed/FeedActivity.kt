@@ -114,7 +114,6 @@ class FeedActivity : AppCompatActivity() {
                         onDelete = { loadFeed() } // Recarrega o feed após apagar (Persistência)
                     )
                 } else {
-                    // Requisito 57: Mensagem de erro adequada
                     Toast.makeText(this@FeedActivity, "Erro ao carregar posts: ${response.code()}", Toast.LENGTH_LONG).show()
                 }
             }

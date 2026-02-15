@@ -1,4 +1,4 @@
-package pt.ipt.bloomain.feed
+package pt.ipt.bloomain.adapters
 
 import android.content.Intent
 import android.graphics.BitmapFactory
@@ -13,11 +13,19 @@ import pt.ipt.bloomain.R
 import pt.ipt.bloomain.profile.ProfileActivity
 import pt.ipt.bloomain.retrofit_api.ProfileData
 
+/**
+ * Adaptador que trata da exibição dos resultados da pesquisa de utilizadores
+ * users -> Lista de perfis que a API retorna
+ * currentUserId -> ID do utilizador atual/autenticado
+ */
 class UserSearchAdapter(
     private val users: List<ProfileData>,
     private val currentUserId: String
 ) : RecyclerView.Adapter<UserSearchAdapter.SearchViewHolder>() {
 
+    /**
+     * ViewHolder que contém as referências para os elementos visuais de cada linha da pesquisa
+     */
     inner class SearchViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val ivAvatar: ImageView = view.findViewById(R.id.ivSearchAvatar)
         val tvUsername: TextView = view.findViewById(R.id.tvSearchUsername)
@@ -54,5 +62,8 @@ class UserSearchAdapter(
         }
     }
 
+    /**
+     * Retorna o tamanho da lista de utilizadores pesquisados
+     */
     override fun getItemCount(): Int = users.size
 }

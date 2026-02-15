@@ -8,22 +8,18 @@ import androidx.appcompat.app.AppCompatActivity
 import pt.ipt.bloomain.R
 import pt.ipt.bloomain.retrofit_api.ProfileData
 import pt.ipt.bloomain.retrofit_api.RetrofitClient
+import pt.ipt.bloomain.retrofit_api.UpdateUserRequest
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
+/**
+ * Activity responsável pela gestão e edição das informações de um utilizador (nome, palavra-passe e foto de perfil)
+ */
 class EditCredentialsActivity : AppCompatActivity() {
 
     /**
-     *Inicializa a Activity de edição de credenciais e perfil.
-     * * Este método realiza as seguintes operações:
-     *  1. Recupera o ID do utilizador e o nome atual vindos da Intent para preencher os campos.
-     *  2. Posiciona o cursor de edição no final do texto para facilitar a interação.
-     *  3. Configura o botão de salvaguarda com validações em tempo real:
-     *  - Impede o envio se todos os campos estiverem vazios.
-     *  - Valida a coincidência entre a nova palavra-passe e a confirmação.
-     *  - Verifica se a nova palavra-passe cumpre o requisito mínimo de 6 caracteres.
-     *  4. Dispara a atualização no servidor via [updateUser] apenas se os dados forem válidos.
+     * Inicializa a Activity de edição de credenciais e perfil.
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,6 +37,7 @@ class EditCredentialsActivity : AppCompatActivity() {
             editNameField.setSelection(editNameField.text.length)
         }
 
+        // Validações das credenciais
         findViewById<Button>(R.id.btnSaveCredentials).setOnClickListener {
             val newUsername = findViewById<EditText>(R.id.editNewUsername).text.toString().trim()
             val newPassword = findViewById<EditText>(R.id.editNewPassword).text.toString().trim()
@@ -72,39 +69,28 @@ class EditCredentialsActivity : AppCompatActivity() {
     }
     /**
      * Envia as atualizações de perfil do utilizador para o servidor de forma assíncrona.
-     * * Este método realiza as seguintes ações:
-     * 1. Inicializa a instância do Retrofit configurada para o servidor local.
-     * 2. Constrói um mapa dinâmico contendo apenas os campos preenchidos
-     * (username, password e/ou bio), evitando o envio de dados vazios.
-     * 3. Executa uma chamada à API através do método 'updateUser'.
-     * 4. Em caso de sucesso, exibe uma confirmação e encerra a Activity com [finish].
-     * 5. Em caso de falha ou erro de resposta, notifica o utilizador via Toast.
      */
     private fun updateUser(id: String, username: String, password: String, bio: String) {
 
+        val request = UpdateUserRequest(
+            loggedInUserId = id,
+            username = if (username.isNotEmpty()) username else null,
+            password = if (password.isNotEmpty()) password else null,
+            bio = if (bio.isNotEmpty()) bio else null
+        )
 
-        val updateData = mutableMapOf<String, String>()
-
-        updateData["loggedInUserId"] = id
-
-        if (username.isNotEmpty()) updateData["username"] = username
-        if (password.isNotEmpty()) updateData["password"] = password
-        if (bio.isNotEmpty()) updateData["bio"] = bio
-
-        RetrofitClient.instance.updateUser(id, updateData).enqueue(object : Callback<ProfileData> {
+        RetrofitClient.instance.updateUser(id, request).enqueue(object : Callback<ProfileData> {
             override fun onResponse(call: Call<ProfileData>, response: Response<ProfileData>) {
                 if (response.isSuccessful) {
-                    Toast.makeText(this@EditCredentialsActivity, "Perfil atualizado com sucesso!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@EditCredentialsActivity, "Sucesso!", Toast.LENGTH_SHORT).show()
                     finish()
                 } else {
-                    // Requisito 57: Mensagens de erro adequadas
-                    Toast.makeText(this@EditCredentialsActivity, "Erro do servidor: ${response.code()}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@EditCredentialsActivity, "Erro: ${response.code()}", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onFailure(call: Call<ProfileData>, t: Throwable) {
-                // Requisito 57: Mensagem clara quando o servidor local está desligado
-                Toast.makeText(this@EditCredentialsActivity, "Falha na ligação: Verifique o servidor local", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@EditCredentialsActivity, "Falha de rede", Toast.LENGTH_SHORT).show()
             }
         })
     }

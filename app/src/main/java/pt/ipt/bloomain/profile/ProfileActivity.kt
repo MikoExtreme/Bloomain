@@ -32,6 +32,10 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
+/**
+ * Activity que gere a visualização dos detalhes do perfil de um utilizador
+ * Implementa a lógica para o perfil do utilizador autenticado e para outros utilizadores
+ */
 class ProfileActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
@@ -76,7 +80,8 @@ class ProfileActivity : AppCompatActivity() {
 
         val btnEditProfile = findViewById<Button>(R.id.btnEditProfile)
 
-
+        // Lógica da interface dinâmica
+        // É diferente consoante o utilizador autenticado e o perfil em exibição
         if (userId != currentUserId && currentUserId.isNotEmpty()) {
             btnFollow.visibility = View.VISIBLE
             btnEditProfile.visibility = View.GONE
@@ -87,7 +92,6 @@ class ProfileActivity : AppCompatActivity() {
         }
 
         btnFollow.setOnClickListener {
-            // Requisito 30: Uso de Data Class em vez de Map
             val request = FollowRequest(followerId = currentUserId)
 
             RetrofitClient.instance.toggleFollow(profileUserId, request).enqueue(object :
@@ -119,7 +123,7 @@ class ProfileActivity : AppCompatActivity() {
     }
     /**
      * Procura e exibe os detalhes biográficos e estatísticos do utilizador.
-     * * Realiza o carregamento da imagem de perfil (Base64), nome de utilizador e bio.
+     * Realiza o carregamento da imagem de perfil (Base64), nome de utilizador e bio.
      * Após o sucesso, dispara o [loadUserPosts] para preencher a grelha de fotografias.
      */
     private fun getProfile(userId: String) {
@@ -128,16 +132,16 @@ class ProfileActivity : AppCompatActivity() {
                 if (response.isSuccessful) {
                     val profile = response.body()
 
-                    // Atualiza Textos e Bio
+                    // Atualiza textos e bio
                     findViewById<TextView>(R.id.usernameTextView).text = profile?.username ?: ""
                     findViewById<TextView>(R.id.bioTextView).text = profile?.bio ?: "Sem biografia"
 
-                    // Atualiza Estatísticas (Posts, Seguidores, Seguindo)
+                    // Atualiza estatísticas (publicações, seguidores, a seguir)
                     findViewById<TextView>(R.id.postsCountText).text = profile?.stats?.posts.toString()
                     tvFollowers.text = profile?.stats?.followers.toString()
                     tvFollowing.text = profile?.stats?.following.toString()
 
-                    // Atualiza Imagem de Perfil
+                    // Atualiza imagem de perfil
                     profile?.profileImage?.let { base64 ->
                         if (base64.isNotEmpty()) {
                             try {
@@ -169,7 +173,6 @@ class ProfileActivity : AppCompatActivity() {
                 if (response.isSuccessful) {
                     val userPosts = response.body() ?: emptyList()
                     recyclerView.adapter = ProfilePostsAdapter(userPosts, currentUserId) { post ->
-                        // Navegar para detalhe do post se quiseres
                     }
                 }
             }
@@ -177,13 +180,19 @@ class ProfileActivity : AppCompatActivity() {
         })
     }
 
-
+    /**
+     * Garante que o utilizador tem sempre os dados atualizados com acessa a página de perfil
+     */
     override fun onResume() {
         super.onResume()
         val userId = intent.getStringExtra("USER_ID") ?: ""
         if (userId.isNotEmpty()) getProfile(userId)
     }
 
+
+    /**
+     * Gere a propagação de eventos de toque para fechar o teclado automaticamente.
+     */
     override fun dispatchTouchEvent(event: MotionEvent): Boolean {
         if (event.action == MotionEvent.ACTION_DOWN) {
             val v = currentFocus

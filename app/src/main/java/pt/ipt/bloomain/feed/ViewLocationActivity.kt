@@ -10,6 +10,10 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import pt.ipt.bloomain.R
 
+/**
+ * Activity responsável pela visualização associada a uma publicação
+ * Implementa [OnMapReadyCallback] para o processamento da exibição do ponto exato no mapa da Google Maps
+ */
 class ViewLocationActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private var latitude: Double = 0.0
@@ -31,6 +35,9 @@ class ViewLocationActivity : AppCompatActivity(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
     }
 
+    /**
+     * Configura o mapa e posiciona o marcador visual nas coordenadas fornecidas
+     */
     override fun onMapReady(googleMap: GoogleMap) {
         val location = LatLng(latitude, longitude)
 

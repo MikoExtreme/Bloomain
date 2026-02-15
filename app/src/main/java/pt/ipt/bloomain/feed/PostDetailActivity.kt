@@ -15,6 +15,10 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
+/**
+ * Activity responsável por exibir os detalhes de uma publicação
+ * É invocada normalmente ao clicar numa publicação presente na grid do perfil
+ */
 class PostDetailActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
@@ -47,13 +51,13 @@ class PostDetailActivity : AppCompatActivity() {
                 if (response.isSuccessful) {
                     val post = response.body()
                     if (post != null) {
-                        // Reutilizamos o PostsAdapter para manter a consistência visual
                         recyclerView.adapter = PostsAdapter(
-                            items = listOf(post),
+                            items = listOf(post), // O adaptador recebe uma lista com apenas um item
                             currentUserId = currentUserId,
                             apiService = RetrofitClient.instance,
                             onLike = { clickedPost -> toggleLike(clickedPost._id) },
                             onDelete = {
+                                // Se o utilizador apagar a publicação nesta tela, voltamos para o perfil
                                 Toast.makeText(
                                     this@PostDetailActivity,
                                     "Post removido",
@@ -69,7 +73,6 @@ class PostDetailActivity : AppCompatActivity() {
             }
 
             override fun onFailure(call: Call<PostItemResponse>, t: Throwable) {
-                // Requisito 57: Mensagem de erro adequada para falha de rede
                 Toast.makeText(this@PostDetailActivity, "Sem ligação ao servidor local", Toast.LENGTH_SHORT).show()
             }
         })

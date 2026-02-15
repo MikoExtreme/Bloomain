@@ -13,10 +13,15 @@ import pt.ipt.bloomain.R
 import pt.ipt.bloomain.retrofit_api.ProfileData
 import pt.ipt.bloomain.retrofit_api.ProfileImageRequest
 import pt.ipt.bloomain.retrofit_api.RetrofitClient
+import pt.ipt.bloomain.retrofit_api.UpdateUserRequest
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
+/**
+ * Activity responsável por gerir a alteração da fotografia de perfil do utilizador
+ * Implementa a seleção de ficheiros locais
+ */
 class EditImageActivity : AppCompatActivity() {
 
     private lateinit var previewImage: ImageView
@@ -79,13 +84,16 @@ class EditImageActivity : AppCompatActivity() {
             return
         }
 
-        val imageRequest = ProfileImageRequest(
+        // Lógica da atualização parcial da informação do utilizador
+        val request = UpdateUserRequest(
+            loggedInUserId = userId,
             profileImage = newBase64,
-            loggedInUserId = userId
+            username = null,
+            password = null,
+            bio = null
         )
 
-        RetrofitClient.instance.updateUser(userId, imageRequest).enqueue(object :
-            Callback<ProfileData> {
+        RetrofitClient.instance.updateUser(userId, request).enqueue(object : Callback<ProfileData> {
             override fun onResponse(call: Call<ProfileData>, response: Response<ProfileData>) {
                 if (response.isSuccessful) {
                     Toast.makeText(this@EditImageActivity, "Foto de perfil atualizada!", Toast.LENGTH_SHORT).show()

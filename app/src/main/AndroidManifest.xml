@@ -42,7 +42,6 @@
         <activity android:name=".authentication.RegisterActivity" />
         <activity android:name=".profile.ProfileActivity" />
         <activity android:name=".profile.SettingsActivity" />
-        <activity android:name=".feed.PostMakerActivity" />
         <activity android:name=".feed.FeedActivity" />
         <activity android:name=".profile.EditImageActivity"/>
         <activity android:name=".profile.EditCredentialsActivity"/>

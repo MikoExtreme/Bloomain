@@ -56,6 +56,10 @@ data class FollowRequest(val followerId: String)
 
 data class ProfileImageRequest(val profileImage: String, val loggedInUserId: String)
 
+data class UpdateUserRequest(val loggedInUserId: String, val username: String? = null, val password: String? = null, val bio: String? = null, val profileImage: String? = null)
+
+
+
 // Endpoints da API
 interface ApiService {
 
@@ -89,7 +93,7 @@ interface ApiService {
 
     // Atualizar dados do Utilizador
     @PATCH("users/{id}")
-    fun updateUser(@Path("id") id: String, @Body data: Any): Call<ProfileData>
+    fun updateUser(@Path("id") id: String, @Body data: UpdateUserRequest): Call<ProfileData>
 
     // Gostar do Post
     @POST("posts/{postId}/like")

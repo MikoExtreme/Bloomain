@@ -91,8 +91,9 @@ class CommentsAdapter(private val comments: List<Comment>,
         }
     }
 
-    /*
-    * Retorna o tamanho da lista de comentários*/
+    /**
+     * Retorna o tamanho da lista de comentários
+     */
 
     override fun getItemCount(): Int = comments.size
 }

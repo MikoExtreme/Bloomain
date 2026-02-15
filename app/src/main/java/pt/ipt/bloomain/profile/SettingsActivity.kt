@@ -18,11 +18,11 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
+/**
+ * Activity responsável pelas definições da conta do utilizador autenticado,
+ * onde aparece um menu com várias opções de gestão da conta
+ */
 class SettingsActivity : AppCompatActivity() {
-
-
-
-
 
     /**
      * Gere as configurações da conta e preferências do utilizador.
@@ -52,11 +52,13 @@ class SettingsActivity : AppCompatActivity() {
             finish()
         }
 
+
+        // Lógica do Logout
+        // Limpa os dados da sessão guardados localmente e redireciona para a página de Login
         findViewById<Button>(R.id.log_out).setOnClickListener {
             val sharedPrefs = getSharedPreferences("BloomainPrefs", MODE_PRIVATE)
             sharedPrefs.edit().clear().apply()
 
-            // Voltar para o Login
             val intent = Intent(this, MainActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
@@ -65,6 +67,8 @@ class SettingsActivity : AppCompatActivity() {
 
 
 
+        // Lógica de eliminação da conta
+        // Mostra uma mensagem de confirmação antes da eliminação completa da conta e de tudo relacionada a ela
         val btnDeleteAccount = findViewById<Button>(R.id.btnDeleteAccount)
 
         btnDeleteAccount.setOnClickListener {
@@ -80,13 +84,11 @@ class SettingsActivity : AppCompatActivity() {
                     Callback<PostResponse> {
                     override fun onResponse(call: Call<PostResponse>, response: Response<PostResponse>) {
                         if (response.isSuccessful) {
-                            // --- SEGURANÇA: Limpar sessão local ---
                             val sharedPrefs = getSharedPreferences("BloomainPrefs", MODE_PRIVATE)
                             sharedPrefs.edit().clear().apply()
 
                             Toast.makeText(this@SettingsActivity, "Conta eliminada com sucesso.", Toast.LENGTH_LONG).show()
 
-                            // Voltar para o Login e limpar a pilha de ecrãs
                             val intent = Intent(this@SettingsActivity, MainActivity::class.java)
                             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                             startActivity(intent)
@@ -105,33 +107,5 @@ class SettingsActivity : AppCompatActivity() {
         }
 
     }
-
-    /**
-     * Envia uma nova representação Base64 da imagem de perfil diretamente para o servidor.
-     */
-    private fun updateProfileImage(base64: String) {
-        val userId = intent.getStringExtra("USER_ID") ?: ""
-
-        // CORREÇÃO AQUI: Precisas de criar a instância da Data Class ProfileImageRequest
-        val pImgRequest = ProfileImageRequest(
-            profileImage = base64,
-            loggedInUserId = userId
-        )
-
-        // Passamos 'pImgRequest' que acabámos de criar
-        RetrofitClient.instance.updateUser(userId, pImgRequest).enqueue(object :
-            Callback<ProfileData> {
-            override fun onResponse(call: Call<ProfileData>, response: Response<ProfileData>) {
-                if (response.isSuccessful) {
-                    Toast.makeText(this@SettingsActivity, "Imagem atualizada!", Toast.LENGTH_SHORT).show()
-                }
-            }
-            override fun onFailure(call: Call<ProfileData>, t: Throwable) {
-                Toast.makeText(this@SettingsActivity, "Erro de rede", Toast.LENGTH_SHORT).show()
-            }
-        })
-    }
-
-
 
 }

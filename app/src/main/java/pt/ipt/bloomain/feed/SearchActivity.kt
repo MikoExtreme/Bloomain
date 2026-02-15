@@ -9,13 +9,17 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import pt.ipt.bloomain.R
-import pt.ipt.bloomain.feed.UserSearchAdapter
+import pt.ipt.bloomain.adapters.UserSearchAdapter
 import pt.ipt.bloomain.retrofit_api.ProfileData
 import pt.ipt.bloomain.retrofit_api.RetrofitClient
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
+/**
+ * Activity responsável pela pesquisa de utilizadores
+ * Implementa uma interface em tempo real, que filtra os resultados com base no que o utilizador escreve
+ */
 class SearchActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
@@ -37,6 +41,10 @@ class SearchActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.searchRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
+
+        // Lógica da pesquisa em tempo real
+        // O TextWatcher monitoriza as alterações na barra de pesquisa,
+        // mas a pesquisa é só feita após o utilizador escrever pelo menos 2 caracteres
         etSearchQuery.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 val query = s.toString().trim()
@@ -61,13 +69,11 @@ class SearchActivity : AppCompatActivity() {
                     val users = response.body() ?: emptyList()
                     recyclerView.adapter = UserSearchAdapter(users, currentUserId)
                 } else {
-                    // Requisito 57: Mensagem de erro adequada
                     Toast.makeText(this@SearchActivity, "Erro na procura", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onFailure(call: Call<List<ProfileData>>, t: Throwable) {
-                // Requisito 57: Feedback de rede
                 Toast.makeText(this@SearchActivity, "Sem ligação ao servidor local", Toast.LENGTH_SHORT).show()
             }
         })
