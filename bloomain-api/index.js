@@ -24,7 +24,7 @@ const mongoURIBackup = "mongodb://localhost:27017/bloomainDB"
 async function connectDB() {
     try {
         console.log("Tentando ligar ao MongoDB Atlas (Cloud)...");
-        // Tentamos a cloud com um timeout de 5 segundos para não ficar pendurado
+        // Tentamos conectar á Cloud com um timeout de 5 segundos
         await mongoose.connect(mongoURI, { serverSelectionTimeoutMS: 5000 });
         console.log("✅ Ligado ao MongoDB Atlas com sucesso!");
     } catch (err) {
@@ -148,7 +148,7 @@ app.post('/posts', async (req, res) => {
         });
 
         res.status(201).json({ message: "Post publicado com sucesso!", postId: savedPost._id });
-        console.log(`📸 Novo post criado por: ${creatorId}`);
+        console.log(`Novo post criado por: ${creatorId}`);
     } catch (error) {
         console.error(error);
         res.status(400).json({ message: "Erro ao publicar post." });
@@ -363,10 +363,27 @@ app.delete('/comments/:id', async (req, res) => {
  */
 app.delete('/posts/:id', async (req, res) => {
     try {
-        await Post.findByIdAndDelete(req.params.id);
-        await Comment.deleteMany({ postId: req.params.id });
-        res.json({ message: "Post removido" });
+        const postId = req.params.id;
+
+        const post = await Post.findById(postId);
+        
+        if (!post) {
+            return res.status(404).json({ message: "Post não encontrado" });
+        }
+
+        const creatorId = post.creator;
+
+        await User.findByIdAndUpdate(creatorId, {
+            $pull: { posts: postId }
+        });
+
+        await Post.findByIdAndDelete(postId);
+        await Comment.deleteMany({ postId: postId });
+
+        res.json({ message: "Post removido e estatísticas atualizadas" });
+        console.log(`Post ${postId} limpo do utilizador ${creatorId}`);
     } catch (error) {
+        console.error(error);
         res.status(500).json({ error: "Erro ao apagar post" });
     }
 });
@@ -380,18 +397,25 @@ app.delete('/users/:id', async (req, res) => {
         const { loggedInUserId } = req.body; 
 
         if (userIdToDelete !== loggedInUserId) {
-            return res.status(403).json({ message: "Ação não autorizada. Não podes apagar esta conta." });
+            return res.status(403).json({ message: "Ação não autorizada." });
         }
 
+        // 1. Limpar Seguidores/Seguindo (Já tinhas)
         await User.updateMany({ following: userIdToDelete}, { $pull: { following: userIdToDelete } });
         await User.updateMany({ followers: userIdToDelete }, { $pull: { followers: userIdToDelete } });
 
-        await Post.deleteMany({ creator: userIdToDelete });
-        await Comment.deleteMany({ creatorId: userIdToDelete });
+        // 2. NOVO: Remover o ID do utilizador de todos os arrays de 'likes' em todos os posts
+        await Post.updateMany({}, { $pull: { likes: userIdToDelete } });
 
+        // 3. Limpar Posts e Comentários do utilizador (Já tinhas)
+        await Post.deleteMany({ creator: userIdToDelete });
+        await Comment.deleteMany({ creator: userIdToDelete }); // Nota: Verifica se é 'creator' ou 'creatorId' no teu modelo
+
+        // 4. Eliminar o utilizador
         await User.findByIdAndDelete(userIdToDelete);
 
-        res.json({ message: "Utilizador e conexões removidas com sucesso." });
+        res.json({ message: "Utilizador, conexões e likes removidos com sucesso." });
+        console.log(`🗑️ Limpeza total efetuada para o utilizador: ${userIdToDelete}`);
     } catch (error) {
         res.status(500).json({ error: "Erro ao apagar conta" });
     }
@@ -415,10 +439,9 @@ app.get('/posts/single/:postId', async (req, res) => {
 app.get('/users/search/:query', async (req, res) => {
     try {
         const query = req.params.query;
-        // Procura utilizadores onde o username contém a 'query'
         const users = await User.find({
             username: { $regex: query, $options: 'i' }
-        }).select('username profileImage _id bio'); // Apenas dados necessários
+        }).select('username profileImage _id bio');
 
         res.json(users);
     } catch (error) {
@@ -430,6 +453,8 @@ app.get('/users/search/:query', async (req, res) => {
 /**
  * Ligar o Servidor
  */
-app.listen(PORT, () => {
-    console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Servidor Bloomain Ativo`);
+    console.log(`Porta: ${PORT}`);
+    console.log(`Disponível localmente e na rede Wi-Fi`);
 });
