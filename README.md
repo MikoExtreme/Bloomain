@@ -1,7 +1,7 @@
 Requisitos:
-	1-Instalar o Node
-	2-Instalar o MongoDB Server
-	3-Instalar o MongoDB Compass (Apoio Visual)
+	1-Instalar o Node (https://nodejs.org/pt-br/download)
+	2-Instalar o MongoDB Server (https://fastdl.mongodb.org/windows/mongodb-windows-x86_64-8.2.5-signed.msi)
+	3-Instalar o MongoDB Compass (Apoio Visual) (https://downloads.mongodb.com/compass/mongodb-compass-1.49.1-win32-x64.exe)
 
 Processo:
 	1-Após clonar o GitHub do projeto e ter feita as instalações, deve ir para a pasta da API (../bloomain_api) através da linha de comandos (CMD)
